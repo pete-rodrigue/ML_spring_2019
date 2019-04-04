@@ -110,8 +110,7 @@ color_column = 'ASSAULT'
 p.patches('xs', 'ys', fill_alpha=0.7,
           fill_color={'field': color_column, 'transform': LogColorMapper(palette=palette)},
           line_color='black', line_width=0.5,
-          source=geo_source,
-          legend=color_column
+          source=geo_source
           )
 
 outfile = open('map_of_neighborhoods.html', 'w')
