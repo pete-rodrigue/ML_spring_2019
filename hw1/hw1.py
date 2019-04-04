@@ -5,12 +5,13 @@ pete rodrigue
 '''
 
 import pandas as pd
-
+import seaborn as sns
 
 # Part one
 
 # Uncomment the code below if you need to download the data again.
 
+'''
 for index in range(0, 500000, 50000):
     print('index is', index)
     url_2017 = 'https://data.cityofchicago.org/resource/crimes.json?year=2017&$limit=50000&$offset=' + str(index)
@@ -29,21 +30,44 @@ for index in range(0, 500000, 50000):
 
 df_2017.to_csv('alleged_crimes_2017.csv', index=False)
 df_2018.to_csv('alleged_crimes_2018.csv', index=False)
+'''
 
 
-df = pd.read_csv('alleged_crimes_2018.csv')
-
-# Column names:
-# 'arrest', 'beat', 'block', 'case_number', 'community_area', 'date',
-#        'description', 'district', 'domestic', 'fbi_code', 'id', 'iucr',
-#        'latitude', 'location', 'location_description', 'longitude',
-#        'primary_type', 'updated_on', 'ward', 'x_coordinate', 'y_coordinate',
-#        'year'
+df_2017 = pd.read_csv('alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('alleged_crimes_2018.csv')
 
 # Number of crimes of each type
-print(df.columns)
-grouped_by_crime = df.groupby('primary_type').size().sort_values(ascending=False)
-print(grouped_by_crime)
+grouped_by_crime_2017 = df_2017.groupby(
+    'primary_type').size().sort_values(ascending=False)
+grouped_by_crime_2017 = grouped_by_crime_2017.reset_index()
+grouped_by_crime_2017.columns = ['type of crime', 'count']
+# print(grouped_by_crime_2017.columns)
+grouped_by_crime_2017['year'] = 2017
+# print(grouped_by_crime_2017)
+
+grouped_by_crime_2018 = df_2018.groupby(
+    'primary_type').size().sort_values(ascending=False)
+grouped_by_crime_2018 = grouped_by_crime_2018.reset_index()
+grouped_by_crime_2018.columns = ['type of crime', 'count']
+# print(grouped_by_crime_2018.columns)
+grouped_by_crime_2018['year'] = 2018
+print(grouped_by_crime_2018)
+
+df = grouped_by_crime_2017.append(grouped_by_crime_2018, ignore_index=True)
+
 # How they change over time
+a = sns.catplot(y="type of crime", x="count", hue="year",
+                data=df.loc[df['count'] >= 2500, :],
+                height=6, kind="bar", palette="muted")
+a.set_xlabels("Number of reported crimes")
+axes_a = a.axes.flatten()
+axes_a[0].set_title('Common crimes (at least 2,500 reported instances)')
+
+b = sns.catplot(y="type of crime", x="count", hue="year",
+                data=df.loc[df['count'] < 2500, :],
+                height=6, kind="bar", palette="muted")
+b.set_xlabels("Number of reported crimes")
+axes_b = b.axes.flatten()
+axes_b[0].set_title('Less common crimes (less than 2,500 reported instances)')
 
 # How they are different by neighborhood
