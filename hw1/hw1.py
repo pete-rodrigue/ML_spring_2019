@@ -6,6 +6,12 @@ pete rodrigue
 
 import pandas as pd
 import seaborn as sns
+import requests
+import json
+from bokeh.io import show, output_notebook
+from bokeh.models import GeoJSONDataSource, LogColorMapper
+from bokeh.palettes import Viridis6 as palette
+from bokeh.plotting import figure
 
 # Part one
 
@@ -35,6 +41,8 @@ df_2018.to_csv('alleged_crimes_2018.csv', index=False)
 
 df_2017 = pd.read_csv('alleged_crimes_2017.csv')
 df_2018 = pd.read_csv('alleged_crimes_2018.csv')
+
+print(df_2017.columns)
 
 # Number of crimes of each type
 grouped_by_crime_2017 = df_2017.groupby(
@@ -71,3 +79,14 @@ axes_b = b.axes.flatten()
 axes_b[0].set_title('Less common crimes (less than 2,500 reported instances)')
 
 # How they are different by neighborhood
+
+myjson_request = requests.get('https://data.cityofchicago.org/resource/igwz-8jzy.json')
+geo_source = GeoJSONDataSource(geojson=myjson_request.json())
+
+p = figure(title="Chicago")
+
+p.patches( #'xs', 'ys', fill_alpha=0.7,
+          #fill_color={'field': color_column, 'transform': LogColorMapper(palette=palette)},
+          #line_color='black', line_width=0.5, source=geo_source
+          )
+show(p)
