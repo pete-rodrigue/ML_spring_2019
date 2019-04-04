@@ -181,14 +181,20 @@ chi_map = folium.Map(location=[41.860909, -87.630780], tiles='Stamen Toner', zoo
 # creation of the choropleth
 with open("hw1/Boundaries - Community Areas (current) (1).geojson") as f:
     geodata = json.load(f)
-chi_map.geo_json(geo_path = district_geo,
-              data_out = 'crimeagg.json',
-              data = crimedata2,
-              columns = ['District', 'Number'],
-              key_on = 'feature.properties.DISTRICT',
-              fill_color = 'YlOrRd',
-              fill_opacity = 0.7,
-              line_opacity = 0.2,
-              legend_name = 'Number of incidents per district')
-
+# with open("hw1/community area boundaries.json") as f:
+#     geodata = json.load(f)
+geodata['features'][0]['properties']
+geodata['features'][1]['properties']
+# folium.GeoJson(geodata, name='geojson').add_to(chi_map)
+folium.Choropleth(
+    geo_data=geodata,
+    name='assaults',
+    data=state_data,
+    columns=['State', 'Unemployment'],
+    key_on='feature.id',
+    fill_color='YlGn',
+    fill_opacity=0.7,
+    line_opacity=0.2,
+    legend_name='Unemployment Rate (%)'
+).add_to(chi_map)
 chi_map.save('hw1/map.html')
