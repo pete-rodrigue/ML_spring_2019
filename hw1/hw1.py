@@ -6,12 +6,13 @@ pete rodrigue
 
 import pandas as pd
 import seaborn as sns
-import requests
 import json
-from bokeh.io import show, output_notebook
+from bokeh.models import GeoJSONDataSource
 from bokeh.models import GeoJSONDataSource, LogColorMapper
 from bokeh.palettes import Viridis6 as palette
 from bokeh.plotting import figure
+from bokeh.embed import file_html
+from bokeh.resources import CDN
 
 # Part one
 
@@ -80,13 +81,39 @@ axes_b[0].set_title('Less common crimes (less than 2,500 reported instances)')
 
 # How they are different by neighborhood
 
-myjson_request = requests.get('https://data.cityofchicago.org/resource/igwz-8jzy.json')
-geo_source = GeoJSONDataSource(geojson=myjson_request.json())
+df = df_2017.append(df_2018, ignore_index=True)
+df = df.groupby(['year', 'community_area', 'primary_type']).size().reset_index()
+df.columns = ['year', 'community_area', 'type of crime', 'count']
+
+with open("hw1/Boundaries - Community Areas (current) (1).geojson") as f:
+    geodata = json.load(f)
+
+print(geodata['features'][0]['properties']['area_numbe'])
+
+for idx in range(len(geodata['features'])):
+    current_community_area = geodata['features'][idx]['properties']['area_numbe']
+    print(current_community_area)
+    geodata['features'][idx]['properties']['ASSAULT'] = df.loc[
+        (df['community_area'] == int(current_community_area)) & \
+        (df['year'] == 2018), ['type of crime', 'count']].set_index('type of crime').to_dict()['count']['ASSAULT']
+    geodata['features'][idx]['properties']['THEFT'] = df.loc[
+        (df['community_area'] == int(current_community_area)) & \
+        (df['year'] == 2018), ['type of crime', 'count']].set_index('type of crime').to_dict()['count']['THEFT']
+
+
+json_data = json.dumps(geodata)
+# print(json_data)
+geo_source = GeoJSONDataSource(geojson=json_data)
 
 p = figure(title="Chicago")
-
-p.patches( #'xs', 'ys', fill_alpha=0.7,
-          #fill_color={'field': color_column, 'transform': LogColorMapper(palette=palette)},
-          #line_color='black', line_width=0.5, source=geo_source
+color_column = 'ASSAULT'
+p.patches('xs', 'ys', fill_alpha=0.7,
+          fill_color={'field': color_column, 'transform': LogColorMapper(palette=palette)},
+          line_color='black', line_width=0.5,
+          source=geo_source,
+          legend=color_column
           )
-show(p)
+
+outfile = open('map_of_neighborhoods.html', 'w')
+outfile.write(file_html(p, CDN, 'reported crime'))
+outfile.close()
