@@ -11,26 +11,27 @@ import pandas as pd
 
 # Uncomment the code below if you need to download the data again.
 
-for myoffset in range(0, 50):
-    print('myoffset is', myoffset)
-    url_2017 = 'https://data.cityofchicago.org/resource/crimes.json?year=2017&$limit=50000&$offset=' + str(myoffset)
-    url_2018 = 'https://data.cityofchicago.org/resource/crimes.json?year=2018&$limit=50000&$offset=' + str(myoffset)
-    print(url_2017)
+for index in range(0, 500000, 50000):
+    print('index is', index)
+    url_2017 = 'https://data.cityofchicago.org/resource/crimes.json?year=2017&$limit=50000&$offset=' + str(index)
+    url_2018 = 'https://data.cityofchicago.org/resource/crimes.json?year=2018&$limit=50000&$offset=' + str(index)
+    print('url_2017 is', url_2017)
     results_2017 = pd.read_json(url_2017)
     results_2018 = pd.read_json(url_2018)
     if results_2017.empty:
         break
-    if myoffset == 0:
-        results_df = results_2017
-        results_df = results_df.append(results_2018, ignore_index=True)
+    if index == 0:
+        df_2017 = results_2017
+        df_2018 = results_2018
     else:
-        results_df = results_df.append(results_2017, ignore_index=True)
-        results_df = results_df.append(results_2018, ignore_index=True)
+        df_2017 = df_2017.append(results_2017, ignore_index=True)
+        df_2018 = df_2018.append(results_2018, ignore_index=True)
 
-results_df.to_csv('alleged_crimes_data.csv', index=False)
+df_2017.to_csv('alleged_crimes_2017.csv', index=False)
+df_2018.to_csv('alleged_crimes_2018.csv', index=False)
 
 
-df = pd.read_csv('alleged_crimes_data.csv')
+df = pd.read_csv('alleged_crimes_2018.csv')
 
 # Column names:
 # 'arrest', 'beat', 'block', 'case_number', 'community_area', 'date',
