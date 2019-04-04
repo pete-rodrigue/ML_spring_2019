@@ -8,12 +8,7 @@ import pandas as pd
 import seaborn as sns
 import json
 import folium
-from bokeh.models import GeoJSONDataSource
-from bokeh.models import GeoJSONDataSource, LogColorMapper
-from bokeh.palettes import Viridis6 as palette
-from bokeh.plotting import figure
-from bokeh.embed import file_html
-from bokeh.resources import CDN
+import matplotlib.pyplot as plt
 
 # Part one
 
@@ -83,46 +78,6 @@ axes_b[0].set_title('Less common crimes (less than 2,500 reported instances)')
 b.savefig("hw1/not common crimes.png")
 
 # How they are different by neighborhood
-'''
-df = df_2017.append(df_2018, ignore_index=True)
-df = df.groupby(['year', 'community_area', 'primary_type']).size().reset_index()
-df.columns = ['year', 'community_area', 'type of crime', 'count']
-
-with open("hw1/Boundaries - Community Areas (current) (1).geojson") as f:
-    geodata = json.load(f)
-
-print(geodata['features'][0]['properties']['area_numbe'])
-
-for idx in range(len(geodata['features'])):
-    current_community_area = geodata['features'][idx]['properties']['area_numbe']
-    print(current_community_area)
-    geodata['features'][idx]['properties']['ASSAULT'] = df.loc[
-        (df['community_area'] == int(current_community_area)) & \
-        (df['year'] == 2018), ['type of crime', 'count']].set_index('type of crime').to_dict()['count']['ASSAULT']
-    geodata['features'][idx]['properties']['THEFT'] = df.loc[
-        (df['community_area'] == int(current_community_area)) & \
-        (df['year'] == 2018), ['type of crime', 'count']].set_index('type of crime').to_dict()['count']['THEFT']
-
-
-json_data = json.dumps(geodata)
-# print(json_data)
-geo_source = GeoJSONDataSource(geojson=json_data)
-
-p = figure(title="Chicago")
-color_column = 'ASSAULT'
-p.patches('xs', 'ys', fill_alpha=0.7,
-          fill_color={'field': color_column, 'transform': LogColorMapper(palette=palette)},
-          line_color='black', line_width=0.5,
-          source=geo_source
-          )
-
-outfile = open('map_of_neighborhoods.html', 'w')
-outfile.write(file_html(p, CDN, 'reported crime'))
-outfile.close()
-'''
-
-
-
 
 
 
@@ -130,7 +85,7 @@ df_2017 = pd.read_csv('alleged_crimes_2017.csv')
 df_2018 = pd.read_csv('alleged_crimes_2018.csv')
 
 df_2017.head()
-df = df_2017.groupby(['year', 'community_area', 'primary_type']).size().reset_index()
+df = df_2018.groupby(['year', 'community_area', 'primary_type']).size().reset_index()
 df.columns = ['year', 'community_area', 'type of crime', 'count']
 
 community_area_names = pd.read_csv('hw1/CommAreas.csv')
@@ -170,14 +125,17 @@ for ax, title in zip(g.axes.flat, titles):
     ax.yaxis.grid(True)
 
 sns.despine(left=True, bottom=True)
-plt.gcf().set_size_inches(16, 8.27)
+plt.gcf().set_size_inches(9, 18)
 g.savefig('hw1/reported crimes by community area.png')
 
-
-
+df.head()
+df.tail()
 
 # mapping with folium
-chi_map = folium.Map(location=[41.860909, -87.630780], tiles='Stamen Toner', zoom_start=10)
+chi_map = folium.Map(
+    location=[41.860909, -87.630780],  # tiles='cartodbpositron',
+    zoom_start=10)
+folium.TileLayer('cartodbpositron', overlay=True).add_to(chi_map)
 # creation of the choropleth
 with open("hw1/Boundaries - Community Areas (current) (1).geojson") as f:
     geodata = json.load(f)
@@ -188,13 +146,52 @@ geodata['features'][1]['properties']
 # folium.GeoJson(geodata, name='geojson').add_to(chi_map)
 folium.Choropleth(
     geo_data=geodata,
-    name='assaults',
-    data=state_data,
-    columns=['State', 'Unemployment'],
-    key_on='feature.id',
-    fill_color='YlGn',
+    name='thefts',
+    data=df.loc[df['type of crime'] == 'THEFT', :],
+    columns=['COMMUNITY', 'count'],
+    key_on='properties.community',
+    fill_color='YlOrRd',
     fill_opacity=0.7,
     line_opacity=0.2,
-    legend_name='Unemployment Rate (%)'
-).add_to(chi_map)
+    overlay=False,
+    legend_name='Number of reported thefts').add_to(chi_map)
+
+folium.Choropleth(
+    geo_data=geodata,
+    name='battery',
+    data=df.loc[df['type of crime'] == 'BATTERY', :],
+    columns=['COMMUNITY', 'count'],
+    key_on='properties.community',
+    fill_color='YlOrRd',
+    fill_opacity=0.7,
+    line_opacity=0.2,
+    overlay=False,
+    legend_name='Number of reported batteries').add_to(chi_map)
+
+folium.Choropleth(
+    geo_data=geodata,
+    name='criminal damage',
+    data=df.loc[df['type of crime'] == 'CRIMINAL DAMAGE', :],
+    columns=['COMMUNITY', 'count'],
+    key_on='properties.community',
+    fill_color='YlOrRd',
+    fill_opacity=0.7,
+    line_opacity=0.2,
+    overlay=False,
+    legend_name='Number of criminal damage reports').add_to(chi_map)
+
+folium.Choropleth(
+    geo_data=geodata,
+    name='assault',
+    data=df.loc[df['type of crime'] == 'ASSAULT', :],
+    columns=['COMMUNITY', 'count'],
+    key_on='properties.community',
+    fill_color='YlOrRd',
+    fill_opacity=0.7,
+    line_opacity=0.2,
+    overlay=False,
+    legend_name='Number of assault reports').add_to(chi_map)
+
+folium.LayerControl().add_to(chi_map)
+
 chi_map.save('hw1/map.html')
