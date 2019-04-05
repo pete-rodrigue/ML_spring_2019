@@ -31,13 +31,13 @@ for index in range(0, 500000, 50000):
         df_2017 = df_2017.append(results_2017, ignore_index=True)
         df_2018 = df_2018.append(results_2018, ignore_index=True)
 
-df_2017.to_csv('alleged_crimes_2017.csv', index=False)
-df_2018.to_csv('alleged_crimes_2018.csv', index=False)
+df_2017.to_csv('hw1/alleged_crimes_2017.csv', index=False)
+df_2018.to_csv('hw1/alleged_crimes_2018.csv', index=False)
 '''
 
 
-df_2017 = pd.read_csv('alleged_crimes_2017.csv')
-df_2018 = pd.read_csv('alleged_crimes_2018.csv')
+df_2017 = pd.read_csv('hw1/alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('hw1/alleged_crimes_2018.csv')
 
 print(df_2017.columns)
 
@@ -81,8 +81,8 @@ b.savefig("hw1/not common crimes.png")
 
 
 
-df_2017 = pd.read_csv('alleged_crimes_2017.csv')
-df_2018 = pd.read_csv('alleged_crimes_2018.csv')
+df_2017 = pd.read_csv('hw1/alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('hw1/alleged_crimes_2018.csv')
 
 df_2017.head()
 df = df_2018.groupby(['year', 'community_area', 'primary_type']).size().reset_index()
@@ -195,3 +195,22 @@ folium.Choropleth(
 folium.LayerControl().add_to(chi_map)
 
 chi_map.save('hw1/map.html')
+
+
+
+
+
+
+
+df_2017 = pd.read_csv('hw1/alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('hw1/alleged_crimes_2018.csv')
+df = df_2017.append(df_2018, ignore_index=True)
+
+df['date'] = pd.to_datetime(df['date'])
+df.index = df['date']
+timeseries = df.groupby(pd.Grouper(freq='M')).count()['arrest'].reset_index()
+timeseries.columns = ['date', 'number of reported crimes']
+
+g = sns.lineplot(x="date", y="number of reported crimes", data=timeseries)
+fig = plt.gcf()
+fig.savefig('hw1/timeseries.png')
