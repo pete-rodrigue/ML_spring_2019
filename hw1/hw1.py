@@ -9,6 +9,10 @@ import seaborn as sns
 import json
 import folium
 import matplotlib.pyplot as plt
+import censusgeocode as cg
+import time
+import shapely
+
 
 # Part one
 
@@ -200,7 +204,7 @@ chi_map.save('hw1/map.html')
 
 
 
-
+df.head()
 
 df_2017 = pd.read_csv('hw1/alleged_crimes_2017.csv')
 df_2018 = pd.read_csv('hw1/alleged_crimes_2018.csv')
