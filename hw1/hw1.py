@@ -270,6 +270,7 @@ plot_hist('shareInPov', 'HOMICIDE')
 
 both_years = merged_2017.append(merged_2018, ignore_index=True)
 both_years.year = pd.to_datetime(both_years.date).dt.year
+both_years.date = pd.to_datetime(both_years.date)
 
 # This function based on the code here:
 # https://stackoverflow.com/questions/31632372/customizing-annotation-with-seaborns-facetgrid
@@ -311,3 +312,97 @@ def plot_two_vars(outcome, crime1, crime2):
 plot_two_vars('medianFamInc', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
 plot_two_vars('avgHHsize', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
 plot_two_vars('shareInPov', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
+
+
+
+
+# Part 3 question 2
+
+week_in_july_2017 = both_years[
+    (both_years['date'] > datetime.date(2017, 7, 19)) &
+    (both_years['date'] < datetime.date(2017, 7, 25))]
+
+week_in_july_2018 = both_years[
+    (both_years['date'] > datetime.date(2018, 7, 19)) &
+    (both_years['date'] < datetime.date(2018, 7, 25))]
+
+week_in_july_2017.primary_type.unique()
+week_in_july_2017.ward.unique()
+
+week_in_july_2017.loc[week_in_july_2017.primary_type=='ROBBERY',:].size
+week_in_july_2018.loc[week_in_july_2018.primary_type=='ROBBERY',:].size
+
+week_in_july_2017.loc[
+    (week_in_july_2017.primary_type == 'ROBBERY') &
+    (week_in_july_2017.ward == 43), :].size
+week_in_july_2018.loc[
+    (week_in_july_2018.primary_type == 'ROBBERY') &
+    (week_in_july_2018.ward == 43), :].size
+
+week_in_july_2017.loc[week_in_july_2017.primary_type=='BATTERY',:].size
+week_in_july_2018.loc[week_in_july_2018.primary_type=='BATTERY',:].size
+(34827 - 36465) / 34827
+week_in_july_2017.loc[week_in_july_2017.primary_type=='BURGLARY',:].size
+week_in_july_2018.loc[week_in_july_2018.primary_type=='BURGLARY',:].size
+
+week_in_july_2017.loc[(week_in_july_2017.primary_type=='BURGLARY') &
+    (week_in_july_2017.ward==43),:].size
+week_in_july_2018.loc[(week_in_july_2018.primary_type=='BURGLARY') &
+    (week_in_july_2018.ward==43),:].size
+
+week_in_july_2017.loc[week_in_july_2017.primary_type=='MOTOR VEHICLE THEFT',:].size
+week_in_july_2018.loc[week_in_july_2018.primary_type=='MOTOR VEHICLE THEFT',:].size
+
+week_in_july_2017.loc[(week_in_july_2017.primary_type=='MOTOR VEHICLE THEFT') &
+    (week_in_july_2017.ward==43),:].size
+week_in_july_2018.loc[(week_in_july_2018.primary_type=='MOTOR VEHICLE THEFT') &
+    (week_in_july_2018.ward==43),:].size
+
+
+week_in_july_2017.size
+week_in_july_2018.size
+(186108 - 180882) / 186108
+
+
+
+
+
+
+
+
+
+## Problem 4
+both_years.columns
+both_years.loc[both_years.tractce10 == 330100, :].groupby(
+    'primary_type').size().sort_values(
+    ascending=False)
+both_years.loc[both_years.tractce10 == 330100, :].groupby(
+    'primary_type').size().sort_values(
+        ascending=False) / both_years.loc[
+        both_years.tractce10 == 330100, :].groupby('primary_type').size(
+        ).sort_values(ascending=False).sum()
+
+both_years.loc[both_years.commarea == 33, :]
+both_years.commarea.unique()
+
+
+both_years.loc[(both_years.commarea == 27) |
+    (both_years.commarea == 26), :].groupby(
+    'primary_type').size().sort_values(
+    ascending=False)
+both_years.loc[(both_years.commarea == 27) |
+    (both_years.commarea == 26), :].groupby(
+    'primary_type').size().sort_values(
+        ascending=False) / both_years.loc[(both_years.commarea == 27) |
+            (both_years.commarea == 26), :].groupby('primary_type').size(
+        ).sort_values(ascending=False).sum()
+
+
+
+both_years.loc[(both_years.commarea == 3), :].groupby(
+    'primary_type').size().sort_values(
+    ascending=False)
+both_years.loc[(both_years.commarea == 3), :].groupby(
+    'primary_type').size().sort_values(
+        ascending=False) / both_years.loc[(both_years.commarea == 3), :].groupby('primary_type').size(
+        ).sort_values(ascending=False).sum()
