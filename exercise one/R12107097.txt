@@ -1,0 +1,165 @@
+--------------------------------------------------------------------------------
+Codebook for Social Explorer report ID: R12107097
+--------------------------------------------------------------------------------
+
+Contents
+    - Table Summary
+    - Data Dictionary
+    - Citation and Use
+
+
+--------------------------------------------------------------------------------
+Table Summary
+--------------------------------------------------------------------------------
+ 
+Survey:           ACS 2017 (5-Year Estimates)
+Dataset:          Social Explorer Tables:  ACS 2017 (5-Year Estimates)
+Tables:
+
+      1. Age - Cumulative (Less)
+         Universe:  Total Population
+         Name:      A01001A
+         Variables:
+            A01001A_001:   Total Population:
+            A01001A_002:      Less than 5 Years
+            A01001A_003:      Less than 10 Years
+            A01001A_004:      Less than 15 Years
+            A01001A_005:      Less than 18 Years
+            A01001A_006:      Less than 25 Years
+            A01001A_007:      Less than 35 Years
+            A01001A_008:      Less than 45 Years
+            A01001A_009:      Less than 55 Years
+            A01001A_010:      Less than 65 Years
+            A01001A_011:      Less than 75 Years
+            A01001A_012:      Less than 85 Years
+
+
+      2. Average Household Size
+         Universe:  Occupied Households
+         Name:      A10003
+         Variables:
+            A10003_001:   Average Household Size
+
+
+      3. Median Family Income (In <DollarYear> Inflation Adjusted Dollars)
+         Universe:  Families
+         Name:      A14010
+         Variables:
+            A14010_001:   Median Family Income (In 2017 Inflation Adjusted Dollars)
+
+
+      4. Poverty Status in for Children Under 18
+         Universe:  Population Under 18 Years of Age for whom poverty status Is determined
+         Name:      A13003A
+         Variables:
+            A13003A_001:   Population Under 18 Years of Age for Whom Poverty Status Is Determined:
+            A13003A_002:      Living in Poverty
+            A13003A_003:      At or Above Poverty Level
+
+
+
+
+
+ 
+ 
+ 
+--------------------------------------------------------------------------------
+Data Dictionary
+--------------------------------------------------------------------------------
+ 
+Variables 
+      FIPS:           FIPS
+      GEOID:          Geographic Identifier
+      NAME:           Name of Area
+      QName:          Qualifying Name
+      STUSAB:         State/U.S.-Abbreviation (USPS)
+      SUMLEV:         Summary Level
+      GEOCOMP:        Geographic Component
+      FILEID:         File Identification
+      LOGRECNO:       Logical Record Number
+      US:             US
+      REGION:         Region
+      DIVISION:       Division
+      STATECE:        State (Census Code)
+      STATE:          State (FIPS)
+      COUNTY:         County
+      COUSUB:         County Subdivision (FIPS)
+      PLACE:          Place (FIPS Code)
+      PLACESE:        Place (State FIPS + Place FIPS)
+      TRACT:          Census Tract
+      BLKGRP:         Block Group
+      CONCIT:         Consolidated City
+      AIANHH:         American Indian Area/Alaska Native Area/Hawaiian Home Land (Census)
+      AIANHHFP:       American Indian Area/Alaska Native Area/Hawaiian Home Land (FIPS)
+      AIHHTLI:        American Indian Trust Land/Hawaiian Home Land Indicator
+      AITSCE:         American Indian Tribal Subdivision (Census)
+      AITS:           American Indian Tribal Subdivision (FIPS)
+      ANRC:           Alaska Native Regional Corporation (FIPS)
+      CBSA:           Metropolitan and Micropolitan Statistical Area
+      CSA:            Combined Statistical Area
+      METDIV:         Metropolitan Division
+      MACC:           Metropolitan Area Central City
+      MEMI:           Metropolitan/Micropolitan Indicator Flag
+      NECTA:          New England City and Town Combined Statistical Area
+      CNECTA:         New England City and Town Area
+      NECTADIV:       New England City and Town Area Division
+      UA:             Urban Area
+      UACP:           Urban Area Central Place
+      CDCURR:         Current Congressional District ***
+      SLDU:           State Legislative District Upper
+      SLDL:           State Legislative District Lower
+      VTD:            Voting District
+      ZCTA3:          ZIP Code Tabulation Area (3-digit)
+      ZCTA5:          ZIP Code Tabulation Area (5-digit)
+      SUBMCD:         Subbarrio (FIPS)
+      SDELM:          School District (Elementary)
+      SDSEC:          School District (Secondary)
+      SDUNI:          School District (Unified)
+      UR:             Urban/Rural
+      PCI:            Principal City Indicator
+      TAZ:            Traffic Analysis Zone
+      UGA:            Urban Growth Area
+      BTTR:           Tribal Tract
+      BTBG:           Tribal Block Group
+      PUMA5:          Public Use Microdata Area - 5% File
+      PUMA1:          Public Use Microdata Area - 1% File
+      A01001A_001:    Total Population:
+      A01001A_002:    Total Population: Less than 5 Years
+      A01001A_003:    Total Population: Less than 10 Years
+      A01001A_004:    Total Population: Less than 15 Years
+      A01001A_005:    Total Population: Less than 18 Years
+      A01001A_006:    Total Population: Less than 25 Years
+      A01001A_007:    Total Population: Less than 35 Years
+      A01001A_008:    Total Population: Less than 45 Years
+      A01001A_009:    Total Population: Less than 55 Years
+      A01001A_010:    Total Population: Less than 65 Years
+      A01001A_011:    Total Population: Less than 75 Years
+      A01001A_012:    Total Population: Less than 85 Years
+      A10003_001:     Average Household Size
+      A14010_001:     Median Family Income (In 2017 Inflation Adjusted Dollars)
+      A13003A_001:    Population Under 18 Years of Age for Whom Poverty Status Is Determined:
+      A13003A_002:    Population Under 18 Years of Age for Whom Poverty Status Is Determined: Living in Poverty
+      A13003A_003:    Population Under 18 Years of Age for Whom Poverty Status Is Determined: At or Above Poverty Level
+
+
+
+
+--------------------------------------------------------------------------------
+Citation and Use of Data
+--------------------------------------------------------------------------------
+ 
+All persons are granted a limited license to use this documentation and the
+accompanying data, subject to the following conditions:
+
+* Publications and research reports employing the data
+  must cite it appropriately. The citation should include the following:
+
+	  www.socialexplorer.com
+	  New York City, NY: Social Explorer 2019
+
+
+* Citations should also include the URL for this report:
+
+    http://www.socialexplorer.com/pub/reportdata/HtmlResults.aspx?reportid=R12107097
+
+If you have any questions contact info@socialexplorer.com
