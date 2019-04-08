@@ -55,21 +55,19 @@ grouped_by_crime_2017 = df_2017.groupby(
     'primary_type').size().sort_values(ascending=False)
 grouped_by_crime_2017 = grouped_by_crime_2017.reset_index()
 grouped_by_crime_2017.columns = ['type of crime', 'count']
-# print(grouped_by_crime_2017.columns)
 grouped_by_crime_2017['year'] = 2017
-# print(grouped_by_crime_2017)
+
 
 grouped_by_crime_2018 = df_2018.groupby(
     'primary_type').size().sort_values(ascending=False)
 grouped_by_crime_2018 = grouped_by_crime_2018.reset_index()
 grouped_by_crime_2018.columns = ['type of crime', 'count']
-# print(grouped_by_crime_2018.columns)
 grouped_by_crime_2018['year'] = 2018
-print(grouped_by_crime_2018)
 
 df = grouped_by_crime_2017.append(grouped_by_crime_2018, ignore_index=True)
+df.pivot(index='type of crime', columns='year', values='count').reset_index(
+        ).sort_values(2017, ascending=False)
 
-# How they change over time
 a = sns.catplot(y="type of crime", x="count", hue="year",
                 data=df.loc[df['count'] >= 2500, :],
                 height=6, kind="bar", palette="muted")
@@ -90,8 +88,8 @@ b.savefig("exercise one/not common crimes.png")
 df_2017 = pd.read_csv('exercise one/alleged_crimes_2017.csv')
 df_2018 = pd.read_csv('exercise one/alleged_crimes_2018.csv')
 
-df_2017.head()
-df = df_2018.groupby(['year', 'community_area', 'primary_type']).size().reset_index()
+df = df_2018.groupby(['year', 'community_area', 'primary_type']).size(
+                     ).reset_index()
 df.columns = ['year', 'community_area', 'type of crime', 'count']
 
 community_area_names = pd.read_csv('exercise one/CommAreas.csv')
@@ -102,15 +100,16 @@ df = df.merge(
     how='left', left_on='community_area', right_on='AREA_NUMBE')
 df = df.dropna(subset=['AREA_NUMBE'])
 
-grouped_df = df.groupby(['COMMUNITY', 'type of crime']).sum().reset_index()[['COMMUNITY', 'type of crime', 'count']].sort_values('count', ascending=False)
-grouped_df.head()
-wide_df = grouped_df.pivot(index='COMMUNITY', columns='type of crime', values='count').reset_index()
+grouped_df = df.groupby(['COMMUNITY', 'type of crime']).sum().reset_index(
+                        )[['COMMUNITY', 'type of crime', 'count']].sort_values(
+                            'count', ascending=False)
+wide_df = grouped_df.pivot(
+    index='COMMUNITY', columns='type of crime', values='count').reset_index()
 wide_df.fillna(0)
-wide_df.head()
-
 
 g = sns.PairGrid(wide_df.sort_values("THEFT", ascending=False),
-                 x_vars=['THEFT', 'BATTERY', 'CRIMINAL DAMAGE', 'ASSAULT'], y_vars=["COMMUNITY"],
+                 x_vars=['THEFT', 'BATTERY', 'CRIMINAL DAMAGE', 'ASSAULT'],
+                 y_vars=["COMMUNITY"],
                  height=10, aspect=.25)
 
 g.map(sns.stripplot, size=10, orient="h",
@@ -130,21 +129,15 @@ sns.despine(left=True, bottom=True)
 plt.gcf().set_size_inches(9, 18)
 g.savefig('exercise one/reported crimes by community area.png')
 
-df.head()
-df.tail()
-
 # mapping with folium
 chi_map = folium.Map(
-    location=[41.860909, -87.630780],  # tiles='cartodbpositron',
+    location=[41.860909, -87.630780],
     zoom_start=10)
 folium.TileLayer('cartodbpositron', overlay=True).add_to(chi_map)
 # creation of the choropleth
 with open("exercise one/Boundaries - Community Areas (current) (1).geojson") as f:
     geodata = json.load(f)
 
-geodata['features'][0]['properties']
-geodata['features'][1]['properties']
-# folium.GeoJson(geodata, name='geojson').add_to(chi_map)
 folium.Choropleth(
     geo_data=geodata,
     name='thefts',
@@ -193,7 +186,7 @@ folium.Choropleth(
     overlay=False,
     legend_name='Number of assault reports').add_to(chi_map)
 
-folium.LayerControl().add_to(chi_map)
+folium.LayerControl('bottomleft').add_to(chi_map)
 
 chi_map.save('exercise one/map.html')
 
@@ -211,6 +204,7 @@ g = sns.lineplot(x="date", y="number of reported crimes", data=timeseries)
 fig = plt.gcf()
 fig.savefig('exercise one/timeseries.png')
 
+########
 # Part 2
 
 # Census data from social explorer:
@@ -227,7 +221,8 @@ census_data = census_data[['Geo_FIPS', 'Geo_GEOID',
                            'avgHHsize', 'medianFamInc',
                            'totalPopUnder18', 'popUnder18InPov']]
 
-census_data['shareInPov'] = census_data['popUnder18InPov'] / census_data['totalPopUnder18']
+census_data['shareInPov'] = census_data[
+    'popUnder18InPov'] / census_data['totalPopUnder18']
 
 df_2018 = pd.read_csv('exercise one/alleged_crimes_2018_with_tracts.csv')
 
@@ -244,7 +239,8 @@ merged_2017 = pd.merge(df_2017, census_data,
                        left_on='geoid10', right_on='Geo_GEOID',
                        how='left')
 
-merged_2018.loc[merged_2018['primary_type'] == 'BATTERY', "medianFamInc"].mean()
+merged_2018.loc[
+    merged_2018['primary_type'] == 'BATTERY', "medianFamInc"].mean()
 census_data.medianFamInc.mean()
 merged_2018['medianFamInc'].fillna(0, inplace=True)
 census_data['medianFamInc'].fillna(0, inplace=True)
@@ -258,23 +254,31 @@ merged_2017['shareInPov'].fillna(0, inplace=True)
 merged_2017['avgHHsize'].fillna(0, inplace=True)
 
 
-def plot_hist(outcome, crime):
-    mylabel = 'Tracts with ' + crime
-    sns.distplot(merged_2018.loc[merged_2018['primary_type'] == crime, outcome], color="skyblue", label=mylabel)
-    sns.distplot(census_data[outcome], color="red", label="Overall Cook County")
-    plt.legend()
+def plot_scatter(outcome, crime):
+    temp_df = merged_2018.loc[merged_2018['primary_type'] == crime,
+                                         ['geoid10', outcome]].groupby(
+                                         'geoid10').count().reset_index()
+    varname = 'count of ' + crime + ' reports'
+    temp_df.columns = ['geoid10', varname]
+    temp_df = pd.merge(temp_df,
+                       merged_2018.loc[merged_2018.primary_type == crime],
+                       on='geoid10', how='left')
+    temp_df = temp_df[[varname, outcome]]
+    sns.lmplot(x=outcome, y=varname, data=temp_df,
+               scatter_kws={'s': 8},
+               lowess=True)
     fig = plt.gcf()
     path = 'exercise one/' + crime + '_' + outcome + '.png'
     fig.savefig(path)
 
 
-plot_hist('medianFamInc', 'BATTERY')
-plot_hist('avgHHsize', 'BATTERY')
-plot_hist('shareInPov', 'BATTERY')
+plot_scatter('medianFamInc', 'BATTERY')
+plot_scatter('avgHHsize', 'BATTERY')
+plot_scatter('shareInPov', 'BATTERY')
 
-plot_hist('medianFamInc', 'HOMICIDE')
-plot_hist('avgHHsize', 'HOMICIDE')
-plot_hist('shareInPov', 'HOMICIDE')
+plot_scatter('medianFamInc', 'HOMICIDE')
+plot_scatter('avgHHsize', 'HOMICIDE')
+plot_scatter('shareInPov', 'HOMICIDE')
 
 both_years = merged_2017.append(merged_2018, ignore_index=True)
 both_years.year = pd.to_datetime(both_years.date).dt.year
@@ -288,11 +292,20 @@ def vertical_mean_line(x, **kwargs):
     plt.axvline(x.mean(), **kwargs)
 
 
-def plot_multi_year(outcome, crime):
-    g = sns.FacetGrid(both_years.loc[both_years['primary_type'] == crime, :],
-                      row="year", height=1.7, aspect=4)
-    g.map(sns.distplot, outcome, hist=False, rug=True)
-    g.map(vertical_mean_line, outcome)
+def plot_scatter(outcome, crime):
+    temp_df = both_years.loc[both_years['primary_type'] == crime,
+                                       ['geoid10', outcome]].groupby(
+                                        'geoid10').count().reset_index()
+    varname = 'count of ' + crime + ' reports'
+    temp_df.columns = ['geoid10', varname]
+    temp_df = pd.merge(temp_df,
+                       merged_2018.loc[merged_2018.primary_type == crime],
+                       on='geoid10', how='left')
+    temp_df = temp_df[[varname, outcome]]
+    sns.lmplot(x=outcome, y=varname, data=temp_df,
+               hue = 'year',
+               scatter_kws={'s': 8},
+               lowess=True)
     fig = plt.gcf()
     path = 'exercise one/' + 'both_years_' + crime + '_' + outcome + '.png'
     fig.savefig(path)
