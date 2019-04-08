@@ -50,6 +50,9 @@ df_2018.to_csv('exercise one/alleged_crimes_2018.csv', index=False)
 df_2017 = pd.read_csv('exercise one/alleged_crimes_2017.csv')
 df_2018 = pd.read_csv('exercise one/alleged_crimes_2018.csv')
 
+df_2017.size
+df_2018.size
+
 # Number of crimes of each type
 grouped_by_crime_2017 = df_2017.groupby(
     'primary_type').size().sort_values(ascending=False)
@@ -88,17 +91,51 @@ b.savefig("exercise one/not common crimes.png")
 df_2017 = pd.read_csv('exercise one/alleged_crimes_2017.csv')
 df_2018 = pd.read_csv('exercise one/alleged_crimes_2018.csv')
 
+df_all = df_2017.append(df_2018, ignore_index=True)
+
 df = df_2018.groupby(['year', 'community_area', 'primary_type']).size(
                      ).reset_index()
+df_all = df_all.groupby(['year', 'community_area', 'primary_type']).size(
+                     ).reset_index()
 df.columns = ['year', 'community_area', 'type of crime', 'count']
+df_all.columns = ['year', 'community_area', 'type of crime', 'count']
 
 community_area_names = pd.read_csv('exercise one/CommAreas.csv')
-community_area_names.head()
 community_area_names = community_area_names[['AREA_NUMBE', 'COMMUNITY']]
 df = df.merge(
     community_area_names,
     how='left', left_on='community_area', right_on='AREA_NUMBE')
 df = df.dropna(subset=['AREA_NUMBE'])
+
+df_all = df_all.merge(
+    community_area_names,
+    how='left', left_on='community_area', right_on='AREA_NUMBE')
+df_all = df_all.dropna(subset=['AREA_NUMBE'])
+
+df_all = df_all.groupby(['year',
+                         'COMMUNITY',
+                         'type of crime']).sum().unstack('year')[
+                'count'].reset_index()
+df_all.fillna(0, inplace=True)
+df_all['diff'] = df_all[2018] - df_all[2017]
+df_all.sort_values('diff')
+df_all.sort_values('diff').loc[df_all['type of crime'] == 'HOMICIDE']
+
+g = sns.distplot(df_all.loc[df_all['type of crime'] == 'THEFT', 'diff'])
+plt.axvline(df_all.loc[df_all['type of crime'] == 'THEFT', 'diff'].mean(),
+            color='k', linestyle='dashed', linewidth=1)
+fig = plt.gcf()
+fig.savefig('exercise one/change in thefts.png')
+sns.distplot(df_all.loc[df_all['type of crime'] == 'BATTERY', 'diff'])
+plt.axvline(df_all.loc[df_all['type of crime'] == 'BATTERY', 'diff'].mean(),
+            color='k', linestyle='dashed', linewidth=1)
+fig = plt.gcf()
+fig.savefig('exercise one/change in battery.png')
+sns.distplot(df_all.loc[df_all['type of crime'] == 'HOMICIDE', 'diff'])
+plt.axvline(df_all.loc[df_all['type of crime'] == 'HOMICIDE', 'diff'].mean(),
+            color='k', linestyle='dashed', linewidth=1)
+fig = plt.gcf()
+fig.savefig('exercise one/change in homicides.png')
 
 grouped_df = df.groupby(['COMMUNITY', 'type of crime']).sum().reset_index(
                         )[['COMMUNITY', 'type of crime', 'count']].sort_values(
@@ -318,33 +355,50 @@ plot_multi_year('avgHHsize', 'HOMICIDE')
 plot_multi_year('shareInPov', 'HOMICIDE')
 
 
-def plot_two_vars(outcome, crime):
-    temp_df = merged_2018.loc[merged_2018['primary_type'] == crime,
-                                         ['geoid10', 'year', outcome]].groupby(
-                                         ['year',
+def plot_two_vars(outcome, crime1, crime2):
+    temp_df = merged_2018.loc[(merged_2018['primary_type'] == crime1) |
+                              (merged_2018['primary_type'] == crime2),
+                              ['geoid10',
+                               'primary_type',
+                               outcome]].groupby(
+                                         ['primary_type',
                                           'geoid10']).count().reset_index()
-    varname = 'count of ' + crime + ' reports'
-    temp_df.columns = ['year', 'geoid10', varname]
+    varname = 'count of reports'
+    temp_df.columns = ['type of report', 'geoid10', varname]
     temp_df = pd.merge(temp_df,
-                       both_years.loc[both_years.primary_type == crime],
+                       merged_2018.loc[
+                                (merged_2018['primary_type'] == crime1) |
+                                (merged_2018['primary_type'] == crime2),
+                                ['geoid10', 'tractce10', outcome]],
                        on='geoid10', how='left')
-    temp_df = temp_df[['year_x', varname, outcome]]
-    temp_df.rename(columns={'year_x': 'year'}, inplace=True)
-    sns.lmplot(x=outcome, y=varname, data=temp_df,
-               col='year',
-               scatter_kws={'s': 6, 'alpha': 0.3},
-               lowess=True)
+    temp_df = temp_df[['type of report', varname, outcome]]
+    temp_df = temp_df.drop_duplicates()
+    sns.scatterplot(x=outcome, y=varname, data=temp_df,
+                    hue='type of report', s=6, alpha=0.5)
     fig = plt.gcf()
-    path = 'exercise one/' + 'both_years_' + crime + '_' + outcome + '.png'
+    path = 'exercise one/' + 'compare' + \
+        crime1 + '_' + crime2 + '_' + outcome + '.png'
     fig.savefig(path)
-    path = 'exercise one/' + 'compare' + crime1 + '_' + crime2 + '_' + outcome + '.png'
-    fig.savefig(path)
+    temp_df['weighted_amount'] = temp_df[varname] * temp_df[outcome]
+    total_num_reports_crime1 = temp_df.loc[
+                    temp_df['type of report'] == crime1, varname].sum()
+    total_num_reports_crime2 = temp_df.loc[
+                    temp_df['type of report'] == crime2, varname].sum()
+    weighted_avg_crime1 = temp_df.loc[
+                    temp_df['type of report'] == crime1,
+                    'weighted_amount'].sum() / total_num_reports_crime1
+    weighted_avg_crime2 = temp_df.loc[
+                    temp_df['type of report'] == crime2,
+                    'weighted_amount'].sum() / total_num_reports_crime2
+    print('weighted average for outcome: ',
+          outcome, " and crime: ", crime1, "is ", weighted_avg_crime1, '\n',
+          'weighted average for outcome: ',
+          outcome, " and crime: ", crime2, "is ", weighted_avg_crime2, '\n')
 
 
 plot_two_vars('medianFamInc', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
 plot_two_vars('avgHHsize', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
 plot_two_vars('shareInPov', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
-
 
 
 
