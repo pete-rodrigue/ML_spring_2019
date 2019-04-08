@@ -281,8 +281,9 @@ plot_scatter('avgHHsize', 'HOMICIDE')
 plot_scatter('shareInPov', 'HOMICIDE')
 
 both_years = merged_2017.append(merged_2018, ignore_index=True)
-both_years.year = pd.to_datetime(both_years.date).dt.year
+both_years.head()
 both_years.date = pd.to_datetime(both_years.date)
+both_years.year = both_years.date.dt.year
 
 # This function based on the code here:
 # https://stackoverflow.com/questions/31632372/customizing-annotation-with-seaborns-facetgrid
@@ -292,24 +293,30 @@ def vertical_mean_line(x, **kwargs):
     plt.axvline(x.mean(), **kwargs)
 
 
-def plot_scatter(outcome, crime):
+def plot_multi_year(outcome, crime):
     temp_df = both_years.loc[both_years['primary_type'] == crime,
-                                       ['geoid10', outcome]].groupby(
-                                        'geoid10').count().reset_index()
+                                       ['geoid10', 'year', outcome]].groupby(
+                                        ['year',
+                                         'geoid10']).count().reset_index()
     varname = 'count of ' + crime + ' reports'
-    temp_df.columns = ['geoid10', varname]
+    temp_df.columns = ['year', 'geoid10', varname]
     temp_df = pd.merge(temp_df,
-                       merged_2018.loc[merged_2018.primary_type == crime],
+                       both_years.loc[both_years.primary_type == crime],
                        on='geoid10', how='left')
-    temp_df = temp_df[[varname, outcome]]
+    temp_df = temp_df[['year_x', varname, outcome]]
+    temp_df.rename(columns={'year_x': 'year'}, inplace=True)
     sns.lmplot(x=outcome, y=varname, data=temp_df,
-               hue = 'year',
-               scatter_kws={'s': 8},
+               col='year',
+               scatter_kws={'s': 6, 'alpha': 0.3},
                lowess=True)
     fig = plt.gcf()
     path = 'exercise one/' + 'both_years_' + crime + '_' + outcome + '.png'
     fig.savefig(path)
 
+
+plot_multi_year('medianFamInc', 'BATTERY')
+plot_multi_year('avgHHsize', 'BATTERY')
+plot_multi_year('shareInPov', 'BATTERY')
 
 plot_multi_year('medianFamInc', 'HOMICIDE')
 plot_multi_year('avgHHsize', 'HOMICIDE')
