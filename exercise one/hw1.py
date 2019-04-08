@@ -289,10 +289,6 @@ both_years.year = both_years.date.dt.year
 # https://stackoverflow.com/questions/31632372/customizing-annotation-with-seaborns-facetgrid
 
 
-def vertical_mean_line(x, **kwargs):
-    plt.axvline(x.mean(), **kwargs)
-
-
 def plot_multi_year(outcome, crime):
     temp_df = both_years.loc[both_years['primary_type'] == crime,
                                        ['geoid10', 'year', outcome]].groupby(
@@ -323,16 +319,25 @@ plot_multi_year('avgHHsize', 'HOMICIDE')
 plot_multi_year('shareInPov', 'HOMICIDE')
 
 
-
-
-def plot_two_vars(outcome, crime1, crime2):
-    g = sns.FacetGrid(merged_2018.loc[
-        (merged_2018['primary_type'] == crime1) |
-        (merged_2018['primary_type'] == crime2), :],
-                      row="primary_type", height=1.7, aspect=4)
-    g.map(sns.distplot, outcome, hist=False, rug=True)
-    g.map(vertical_mean_line, outcome)
+def plot_two_vars(outcome, crime):
+    temp_df = merged_2018.loc[merged_2018['primary_type'] == crime,
+                                         ['geoid10', 'year', outcome]].groupby(
+                                         ['year',
+                                          'geoid10']).count().reset_index()
+    varname = 'count of ' + crime + ' reports'
+    temp_df.columns = ['year', 'geoid10', varname]
+    temp_df = pd.merge(temp_df,
+                       both_years.loc[both_years.primary_type == crime],
+                       on='geoid10', how='left')
+    temp_df = temp_df[['year_x', varname, outcome]]
+    temp_df.rename(columns={'year_x': 'year'}, inplace=True)
+    sns.lmplot(x=outcome, y=varname, data=temp_df,
+               col='year',
+               scatter_kws={'s': 6, 'alpha': 0.3},
+               lowess=True)
     fig = plt.gcf()
+    path = 'exercise one/' + 'both_years_' + crime + '_' + outcome + '.png'
+    fig.savefig(path)
     path = 'exercise one/' + 'compare' + crime1 + '_' + crime2 + '_' + outcome + '.png'
     fig.savefig(path)
 
