@@ -224,6 +224,8 @@ census_data = census_data[['Geo_FIPS', 'Geo_GEOID',
 census_data['shareInPov'] = census_data[
     'popUnder18InPov'] / census_data['totalPopUnder18']
 
+# I conducted the spatial join of the reports to tracts in R.
+# The code file that does that is called spatialJoinCrimesTracts.R
 df_2018 = pd.read_csv('exercise one/alleged_crimes_2018_with_tracts.csv')
 
 census_data.Geo_GEOID = census_data.Geo_GEOID.str.findall(pat="(?<=US).*$")
@@ -284,9 +286,6 @@ both_years = merged_2017.append(merged_2018, ignore_index=True)
 both_years.head()
 both_years.date = pd.to_datetime(both_years.date)
 both_years.year = both_years.date.dt.year
-
-# This function based on the code here:
-# https://stackoverflow.com/questions/31632372/customizing-annotation-with-seaborns-facetgrid
 
 
 def plot_multi_year(outcome, crime):
