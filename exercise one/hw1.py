@@ -9,12 +9,20 @@ import seaborn as sns
 import json
 import folium
 import matplotlib.pyplot as plt
-import censusgeocode as cg
-import time
-import shapely
+import datetime
 
+###############################
+###############################
+###############################
+###############################
+# Problem 1
+###############################
+###############################
+###############################
+###############################
 
-# Part one
+########
+# Part 1
 
 # Uncomment the code below if you need to download the data again.
 
@@ -35,15 +43,12 @@ for index in range(0, 500000, 50000):
         df_2017 = df_2017.append(results_2017, ignore_index=True)
         df_2018 = df_2018.append(results_2018, ignore_index=True)
 
-df_2017.to_csv('hw1/alleged_crimes_2017.csv', index=False)
-df_2018.to_csv('hw1/alleged_crimes_2018.csv', index=False)
+df_2017.to_csv('exercise one/alleged_crimes_2017.csv', index=False)
+df_2018.to_csv('exercise one/alleged_crimes_2018.csv', index=False)
 '''
 
-
-df_2017 = pd.read_csv('hw1/alleged_crimes_2017.csv')
-df_2018 = pd.read_csv('hw1/alleged_crimes_2018.csv')
-
-print(df_2017.columns)
+df_2017 = pd.read_csv('exercise one/alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('exercise one/alleged_crimes_2018.csv')
 
 # Number of crimes of each type
 grouped_by_crime_2017 = df_2017.groupby(
@@ -71,7 +76,7 @@ a = sns.catplot(y="type of crime", x="count", hue="year",
 a.set_xlabels("Number of reported crimes")
 axes_a = a.axes.flatten()
 axes_a[0].set_title('Common crimes (at least 2,500 reported instances)')
-a.savefig("hw1/common crimes.png")
+a.savefig("exercise one/common crimes.png")
 
 b = sns.catplot(y="type of crime", x="count", hue="year",
                 data=df.loc[df['count'] < 2500, :],
@@ -79,20 +84,17 @@ b = sns.catplot(y="type of crime", x="count", hue="year",
 b.set_xlabels("Number of reported crimes")
 axes_b = b.axes.flatten()
 axes_b[0].set_title('Less common crimes (less than 2,500 reported instances)')
-b.savefig("hw1/not common crimes.png")
+b.savefig("exercise one/not common crimes.png")
 
 # How they are different by neighborhood
-
-
-
-df_2017 = pd.read_csv('hw1/alleged_crimes_2017.csv')
-df_2018 = pd.read_csv('hw1/alleged_crimes_2018.csv')
+df_2017 = pd.read_csv('exercise one/alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('exercise one/alleged_crimes_2018.csv')
 
 df_2017.head()
 df = df_2018.groupby(['year', 'community_area', 'primary_type']).size().reset_index()
 df.columns = ['year', 'community_area', 'type of crime', 'count']
 
-community_area_names = pd.read_csv('hw1/CommAreas.csv')
+community_area_names = pd.read_csv('exercise one/CommAreas.csv')
 community_area_names.head()
 community_area_names = community_area_names[['AREA_NUMBE', 'COMMUNITY']]
 df = df.merge(
@@ -116,21 +118,17 @@ g.map(sns.stripplot, size=10, orient="h",
 
 g.set(xlabel="# reported crimes", ylabel="")
 
-# Use semantically meaningful titles for the columns
 titles = ['THEFT', 'BATTERY', 'CRIMINAL DAMAGE', 'ASSAULT']
 
 for ax, title in zip(g.axes.flat, titles):
 
-    # Set a different title for each axes
     ax.set(title=title)
-
-    # Make the grid horizontal instead of vertical
     ax.xaxis.grid(False)
     ax.yaxis.grid(True)
 
 sns.despine(left=True, bottom=True)
 plt.gcf().set_size_inches(9, 18)
-g.savefig('hw1/reported crimes by community area.png')
+g.savefig('exercise one/reported crimes by community area.png')
 
 df.head()
 df.tail()
@@ -141,10 +139,9 @@ chi_map = folium.Map(
     zoom_start=10)
 folium.TileLayer('cartodbpositron', overlay=True).add_to(chi_map)
 # creation of the choropleth
-with open("hw1/Boundaries - Community Areas (current) (1).geojson") as f:
+with open("exercise one/Boundaries - Community Areas (current) (1).geojson") as f:
     geodata = json.load(f)
-# with open("hw1/community area boundaries.json") as f:
-#     geodata = json.load(f)
+
 geodata['features'][0]['properties']
 geodata['features'][1]['properties']
 # folium.GeoJson(geodata, name='geojson').add_to(chi_map)
@@ -198,16 +195,11 @@ folium.Choropleth(
 
 folium.LayerControl().add_to(chi_map)
 
-chi_map.save('hw1/map.html')
+chi_map.save('exercise one/map.html')
 
-
-
-
-
-df.head()
-
-df_2017 = pd.read_csv('hw1/alleged_crimes_2017.csv')
-df_2018 = pd.read_csv('hw1/alleged_crimes_2018.csv')
+# Timeseries of crime over last two years
+df_2017 = pd.read_csv('exercise one/alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('exercise one/alleged_crimes_2018.csv')
 df = df_2017.append(df_2018, ignore_index=True)
 
 df['date'] = pd.to_datetime(df['date'])
@@ -217,4 +209,215 @@ timeseries.columns = ['date', 'number of reported crimes']
 
 g = sns.lineplot(x="date", y="number of reported crimes", data=timeseries)
 fig = plt.gcf()
-fig.savefig('hw1/timeseries.png')
+fig.savefig('exercise one/timeseries.png')
+
+# Part 2
+
+# Census data from social explorer:
+# https://www.socialexplorer.com/tables/ACS2017_5yr/R12107097
+# data dictionary is called R12107097_SL140.txt
+
+census_data = pd.read_csv('exercise one/R12107097_SL140.csv')
+census_data.rename(columns={'SE_A10003_001': 'avgHHsize',
+                            'SE_A14010_001': 'medianFamInc',
+                            'SE_A13003A_001': 'totalPopUnder18',
+                            'SE_A13003A_002': 'popUnder18InPov'}, inplace=True)
+
+census_data = census_data[['Geo_FIPS', 'Geo_GEOID',
+                           'avgHHsize', 'medianFamInc',
+                           'totalPopUnder18', 'popUnder18InPov']]
+
+census_data['shareInPov'] = census_data['popUnder18InPov'] / census_data['totalPopUnder18']
+
+df_2018 = pd.read_csv('exercise one/alleged_crimes_2018_with_tracts.csv')
+
+census_data.Geo_GEOID = census_data.Geo_GEOID.str.findall(pat="(?<=US).*$")
+census_data['Geo_GEOID'] = census_data['Geo_GEOID'].apply(lambda x: x[0])
+census_data.Geo_GEOID = census_data.Geo_GEOID.astype('float64')
+merged_2018 = pd.merge(df_2018, census_data,
+                       left_on='geoid10', right_on='Geo_GEOID',
+                       how='left')
+
+df_2017 = pd.read_csv('exercise one/alleged_crimes_2017_with_tracts.csv')
+
+merged_2017 = pd.merge(df_2017, census_data,
+                       left_on='geoid10', right_on='Geo_GEOID',
+                       how='left')
+
+merged_2018.loc[merged_2018['primary_type'] == 'BATTERY', "medianFamInc"].mean()
+census_data.medianFamInc.mean()
+merged_2018['medianFamInc'].fillna(0, inplace=True)
+census_data['medianFamInc'].fillna(0, inplace=True)
+merged_2018['shareInPov'].fillna(0, inplace=True)
+census_data['shareInPov'].fillna(0, inplace=True)
+merged_2018['avgHHsize'].fillna(0, inplace=True)
+census_data['avgHHsize'].fillna(0, inplace=True)
+
+merged_2017['medianFamInc'].fillna(0, inplace=True)
+merged_2017['shareInPov'].fillna(0, inplace=True)
+merged_2017['avgHHsize'].fillna(0, inplace=True)
+
+
+def plot_hist(outcome, crime):
+    mylabel = 'Tracts with ' + crime
+    sns.distplot(merged_2018.loc[merged_2018['primary_type'] == crime, outcome], color="skyblue", label=mylabel)
+    sns.distplot(census_data[outcome], color="red", label="Overall Cook County")
+    plt.legend()
+    fig = plt.gcf()
+    path = 'exercise one/' + crime + '_' + outcome + '.png'
+    fig.savefig(path)
+
+
+plot_hist('medianFamInc', 'BATTERY')
+plot_hist('avgHHsize', 'BATTERY')
+plot_hist('shareInPov', 'BATTERY')
+
+plot_hist('medianFamInc', 'HOMICIDE')
+plot_hist('avgHHsize', 'HOMICIDE')
+plot_hist('shareInPov', 'HOMICIDE')
+
+both_years = merged_2017.append(merged_2018, ignore_index=True)
+both_years.year = pd.to_datetime(both_years.date).dt.year
+both_years.date = pd.to_datetime(both_years.date)
+
+# This function based on the code here:
+# https://stackoverflow.com/questions/31632372/customizing-annotation-with-seaborns-facetgrid
+
+
+def vertical_mean_line(x, **kwargs):
+    plt.axvline(x.mean(), **kwargs)
+
+
+def plot_multi_year(outcome, crime):
+    g = sns.FacetGrid(both_years.loc[both_years['primary_type'] == crime, :],
+                      row="year", height=1.7, aspect=4)
+    g.map(sns.distplot, outcome, hist=False, rug=True)
+    g.map(vertical_mean_line, outcome)
+    fig = plt.gcf()
+    path = 'exercise one/' + 'both_years_' + crime + '_' + outcome + '.png'
+    fig.savefig(path)
+
+
+plot_multi_year('medianFamInc', 'HOMICIDE')
+plot_multi_year('avgHHsize', 'HOMICIDE')
+plot_multi_year('shareInPov', 'HOMICIDE')
+
+
+
+
+def plot_two_vars(outcome, crime1, crime2):
+    g = sns.FacetGrid(merged_2018.loc[
+        (merged_2018['primary_type'] == crime1) |
+        (merged_2018['primary_type'] == crime2), :],
+                      row="primary_type", height=1.7, aspect=4)
+    g.map(sns.distplot, outcome, hist=False, rug=True)
+    g.map(vertical_mean_line, outcome)
+    fig = plt.gcf()
+    path = 'exercise one/' + 'compare' + crime1 + '_' + crime2 + '_' + outcome + '.png'
+    fig.savefig(path)
+
+
+plot_two_vars('medianFamInc', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
+plot_two_vars('avgHHsize', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
+plot_two_vars('shareInPov', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
+
+
+
+
+# Part 3 question 2
+
+week_in_july_2017 = both_years[
+    (both_years['date'] > datetime.date(2017, 7, 19)) &
+    (both_years['date'] < datetime.date(2017, 7, 25))]
+
+week_in_july_2018 = both_years[
+    (both_years['date'] > datetime.date(2018, 7, 19)) &
+    (both_years['date'] < datetime.date(2018, 7, 25))]
+
+week_in_july_2017.primary_type.unique()
+week_in_july_2017.ward.unique()
+
+week_in_july_2017.loc[week_in_july_2017.primary_type=='ROBBERY',:].size
+week_in_july_2018.loc[week_in_july_2018.primary_type=='ROBBERY',:].size
+
+week_in_july_2017.loc[
+    (week_in_july_2017.primary_type == 'ROBBERY') &
+    (week_in_july_2017.ward == 43), :].size
+week_in_july_2018.loc[
+    (week_in_july_2018.primary_type == 'ROBBERY') &
+    (week_in_july_2018.ward == 43), :].size
+
+week_in_july_2017.loc[week_in_july_2017.primary_type=='BATTERY',:].size
+week_in_july_2018.loc[week_in_july_2018.primary_type=='BATTERY',:].size
+(34827 - 36465) / 34827
+week_in_july_2017.loc[week_in_july_2017.primary_type=='BURGLARY',:].size
+week_in_july_2018.loc[week_in_july_2018.primary_type=='BURGLARY',:].size
+
+week_in_july_2017.loc[(week_in_july_2017.primary_type=='BURGLARY') &
+    (week_in_july_2017.ward==43),:].size
+week_in_july_2018.loc[(week_in_july_2018.primary_type=='BURGLARY') &
+    (week_in_july_2018.ward==43),:].size
+
+week_in_july_2017.loc[week_in_july_2017.primary_type=='MOTOR VEHICLE THEFT',:].size
+week_in_july_2018.loc[week_in_july_2018.primary_type=='MOTOR VEHICLE THEFT',:].size
+
+week_in_july_2017.loc[(week_in_july_2017.primary_type=='MOTOR VEHICLE THEFT') &
+    (week_in_july_2017.ward==43),:].size
+week_in_july_2018.loc[(week_in_july_2018.primary_type=='MOTOR VEHICLE THEFT') &
+    (week_in_july_2018.ward==43),:].size
+
+
+week_in_july_2017.size
+week_in_july_2018.size
+(186108 - 180882) / 186108
+
+###############################
+###############################
+###############################
+###############################
+# Problem 4
+###############################
+###############################
+###############################
+###############################
+
+########
+# Part 1
+both_years.loc[both_years.tractce10 == 330100, :].groupby(
+    'primary_type').size().sort_values(
+    ascending=False)
+both_years.loc[both_years.tractce10 == 330100, :].groupby(
+    'primary_type').size().sort_values(
+        ascending=False) / both_years.loc[
+        both_years.tractce10 == 330100, :].groupby('primary_type').size(
+        ).sort_values(ascending=False).sum()
+
+both_years.loc[both_years.commarea == 33, :]
+both_years.commarea.unique()
+
+########
+# Part 2
+# Garfield Park
+both_years.loc[(both_years.commarea == 27) |
+               (both_years.commarea == 26), :].groupby(
+    'primary_type').size().sort_values(
+    ascending=False)
+both_years.loc[(both_years.commarea == 27) |
+               (both_years.commarea == 26), :].groupby(
+               'primary_type').size().sort_values(
+               ascending=False) / both_years.loc[(both_years.commarea == 27) |
+                                                 (both_years.commarea == 26),
+                                                 :].groupby(
+                                                 'primary_type').size(
+        ).sort_values(ascending=False).sum()
+
+
+# Uptown
+both_years.loc[(both_years.commarea == 3), :].groupby(
+    'primary_type').size().sort_values(
+    ascending=False)
+both_years.loc[(both_years.commarea == 3), :].groupby(
+    'primary_type').size().sort_values(
+        ascending=False) / both_years.loc[(
+                    both_years.commarea == 3), :].groupby('primary_type').size(
+        ).sort_values(ascending=False).sum()
