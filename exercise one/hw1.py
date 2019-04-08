@@ -401,52 +401,61 @@ plot_two_vars('avgHHsize', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
 plot_two_vars('shareInPov', 'DECEPTIVE PRACTICE', 'SEX OFFENSE')
 
 
+########
+# Part 3
 
-# Part 3 question 2
+# Question 2
 
-week_in_july_2017 = both_years[
-    (both_years['date'] > datetime.date(2017, 7, 19)) &
-    (both_years['date'] < datetime.date(2017, 7, 25))]
+month_in_july_2017 = both_years[
+    (both_years['date'] >= datetime.date(2017, 6, 26)) &
+    (both_years['date'] <= datetime.date(2017, 7, 26))]
 
-week_in_july_2018 = both_years[
-    (both_years['date'] > datetime.date(2018, 7, 19)) &
-    (both_years['date'] < datetime.date(2018, 7, 25))]
+month_in_july_2018 = both_years[
+    (both_years['date'] >= datetime.date(2018, 6, 26)) &
+    (both_years['date'] <= datetime.date(2018, 7, 26))]
 
-week_in_july_2017.primary_type.unique()
-week_in_july_2017.ward.unique()
+month_in_july_2017.primary_type.unique()
+month_in_july_2017.ward.unique()
 
-week_in_july_2017.loc[week_in_july_2017.primary_type=='ROBBERY',:].size
-week_in_july_2018.loc[week_in_july_2018.primary_type=='ROBBERY',:].size
+month_in_july_2017.loc[month_in_july_2017.primary_type=='ROBBERY',:].size
+month_in_july_2018.loc[month_in_july_2018.primary_type=='ROBBERY',:].size
 
-week_in_july_2017.loc[
-    (week_in_july_2017.primary_type == 'ROBBERY') &
-    (week_in_july_2017.ward == 43), :].size
-week_in_july_2018.loc[
-    (week_in_july_2018.primary_type == 'ROBBERY') &
-    (week_in_july_2018.ward == 43), :].size
+month_in_july_2017.loc[
+    (month_in_july_2017.primary_type == 'ROBBERY') &
+    (month_in_july_2017.ward == 43), :].size
+month_in_july_2018.loc[
+    (month_in_july_2018.primary_type == 'ROBBERY') &
+    (month_in_july_2018.ward == 43), :].size
 
-week_in_july_2017.loc[week_in_july_2017.primary_type=='BATTERY',:].size
-week_in_july_2018.loc[week_in_july_2018.primary_type=='BATTERY',:].size
-(34827 - 36465) / 34827
-week_in_july_2017.loc[week_in_july_2017.primary_type=='BURGLARY',:].size
-week_in_july_2018.loc[week_in_july_2018.primary_type=='BURGLARY',:].size
+month_in_july_2017.loc[month_in_july_2017.primary_type=='BATTERY',:].size
+month_in_july_2018.loc[month_in_july_2018.primary_type=='BATTERY',:].size
 
-week_in_july_2017.loc[(week_in_july_2017.primary_type=='BURGLARY') &
-    (week_in_july_2017.ward==43),:].size
-week_in_july_2018.loc[(week_in_july_2018.primary_type=='BURGLARY') &
-    (week_in_july_2018.ward==43),:].size
+month_in_july_2017.loc[
+    (month_in_july_2017.primary_type == 'BATTERY') &
+    (month_in_july_2017.ward == 43), :].size
+month_in_july_2018.loc[
+    (month_in_july_2018.primary_type == 'BATTERY') &
+    (month_in_july_2018.ward == 43), :].size
 
-week_in_july_2017.loc[week_in_july_2017.primary_type=='MOTOR VEHICLE THEFT',:].size
-week_in_july_2018.loc[week_in_july_2018.primary_type=='MOTOR VEHICLE THEFT',:].size
+month_in_july_2017.loc[month_in_july_2017.primary_type=='BURGLARY',:].size
+month_in_july_2018.loc[month_in_july_2018.primary_type=='BURGLARY',:].size
 
-week_in_july_2017.loc[(week_in_july_2017.primary_type=='MOTOR VEHICLE THEFT') &
-    (week_in_july_2017.ward==43),:].size
-week_in_july_2018.loc[(week_in_july_2018.primary_type=='MOTOR VEHICLE THEFT') &
-    (week_in_july_2018.ward==43),:].size
+month_in_july_2017.loc[(month_in_july_2017.primary_type=='BURGLARY') &
+    (month_in_july_2017.ward==43),:].size
+month_in_july_2018.loc[(month_in_july_2018.primary_type=='BURGLARY') &
+    (month_in_july_2018.ward==43),:].size
+
+month_in_july_2017.loc[month_in_july_2017.primary_type=='MOTOR VEHICLE THEFT',:].size
+month_in_july_2018.loc[month_in_july_2018.primary_type=='MOTOR VEHICLE THEFT',:].size
+
+month_in_july_2017.loc[(month_in_july_2017.primary_type=='MOTOR VEHICLE THEFT') &
+    (month_in_july_2017.ward==43),:].size
+month_in_july_2018.loc[(month_in_july_2018.primary_type=='MOTOR VEHICLE THEFT') &
+    (month_in_july_2018.ward==43),:].size
 
 
-week_in_july_2017.size
-week_in_july_2018.size
+month_in_july_2017.size
+month_in_july_2018.size
 (186108 - 180882) / 186108
 
 ###############################
