@@ -8,8 +8,13 @@ import pandas as pd
 import seaborn as sns
 import json
 import folium
+import matplotlib.dates
 import matplotlib.pyplot as plt
 import datetime
+import os
+
+# You will need to set this to the root folder for the files
+# os.chdir("C:/Users/edwar.WJM-SONYLAPTOP/Documents/GitHub/ML_spring_2019")
 
 ###############################
 ###############################
@@ -43,12 +48,12 @@ for index in range(0, 500000, 50000):
         df_2017 = df_2017.append(results_2017, ignore_index=True)
         df_2018 = df_2018.append(results_2018, ignore_index=True)
 
-df_2017.to_csv('exercise one/alleged_crimes_2017.csv', index=False)
-df_2018.to_csv('exercise one/alleged_crimes_2018.csv', index=False)
+df_2017.to_csv('figures/alleged_crimes_2017.csv', index=False)
+df_2018.to_csv('figures/alleged_crimes_2018.csv', index=False)
 '''
 
-df_2017 = pd.read_csv('exercise one/alleged_crimes_2017.csv')
-df_2018 = pd.read_csv('exercise one/alleged_crimes_2018.csv')
+df_2017 = pd.read_csv('alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('alleged_crimes_2018.csv')
 
 df_2017.size
 df_2018.size
@@ -77,7 +82,8 @@ a = sns.catplot(y="type of crime", x="count", hue="year",
 a.set_xlabels("Number of reported crimes")
 axes_a = a.axes.flatten()
 axes_a[0].set_title('Common crimes (at least 2,500 reported instances)')
-a.savefig("exercise one/common crimes.png")
+a.savefig("figures/common crimes.png")
+plt.close()
 
 b = sns.catplot(y="type of crime", x="count", hue="year",
                 data=df.loc[df['count'] < 2500, :],
@@ -85,11 +91,12 @@ b = sns.catplot(y="type of crime", x="count", hue="year",
 b.set_xlabels("Number of reported crimes")
 axes_b = b.axes.flatten()
 axes_b[0].set_title('Less common crimes (less than 2,500 reported instances)')
-b.savefig("exercise one/not common crimes.png")
+b.savefig("figures/not common crimes.png")
+plt.close()
 
 # How they are different by neighborhood
-df_2017 = pd.read_csv('exercise one/alleged_crimes_2017.csv')
-df_2018 = pd.read_csv('exercise one/alleged_crimes_2018.csv')
+df_2017 = pd.read_csv('alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('alleged_crimes_2018.csv')
 
 df_all = df_2017.append(df_2018, ignore_index=True)
 
@@ -100,7 +107,7 @@ df_all = df_all.groupby(['year', 'community_area', 'primary_type']).size(
 df.columns = ['year', 'community_area', 'type of crime', 'count']
 df_all.columns = ['year', 'community_area', 'type of crime', 'count']
 
-community_area_names = pd.read_csv('exercise one/CommAreas.csv')
+community_area_names = pd.read_csv('CommAreas.csv')
 community_area_names = community_area_names[['AREA_NUMBE', 'COMMUNITY']]
 df = df.merge(
     community_area_names,
@@ -125,17 +132,22 @@ g = sns.distplot(df_all.loc[df_all['type of crime'] == 'THEFT', 'diff'])
 plt.axvline(df_all.loc[df_all['type of crime'] == 'THEFT', 'diff'].mean(),
             color='k', linestyle='dashed', linewidth=1)
 fig = plt.gcf()
-fig.savefig('exercise one/change in thefts.png')
+fig.savefig('figures/change in thefts.png')
+plt.close()
+
 sns.distplot(df_all.loc[df_all['type of crime'] == 'BATTERY', 'diff'])
 plt.axvline(df_all.loc[df_all['type of crime'] == 'BATTERY', 'diff'].mean(),
             color='k', linestyle='dashed', linewidth=1)
 fig = plt.gcf()
-fig.savefig('exercise one/change in battery.png')
+fig.savefig('figures/change in battery.png')
+plt.close()
+
 sns.distplot(df_all.loc[df_all['type of crime'] == 'HOMICIDE', 'diff'])
 plt.axvline(df_all.loc[df_all['type of crime'] == 'HOMICIDE', 'diff'].mean(),
             color='k', linestyle='dashed', linewidth=1)
 fig = plt.gcf()
-fig.savefig('exercise one/change in homicides.png')
+fig.savefig('figures/change in homicides.png')
+plt.close()
 
 grouped_df = df.groupby(['COMMUNITY', 'type of crime']).sum().reset_index(
                         )[['COMMUNITY', 'type of crime', 'count']].sort_values(
@@ -164,7 +176,8 @@ for ax, title in zip(g.axes.flat, titles):
 
 sns.despine(left=True, bottom=True)
 plt.gcf().set_size_inches(9, 18)
-g.savefig('exercise one/reported crimes by community area.png')
+g.savefig('figures/reported crimes by community area.png')
+plt.close()
 
 # mapping with folium
 chi_map = folium.Map(
@@ -172,7 +185,7 @@ chi_map = folium.Map(
     zoom_start=10)
 folium.TileLayer('cartodbpositron', overlay=True).add_to(chi_map)
 # creation of the choropleth
-with open("exercise one/Boundaries - Community Areas (current) (1).geojson") as f:
+with open("Boundaries - Community Areas (current) (1).geojson") as f:
     geodata = json.load(f)
 
 folium.Choropleth(
@@ -225,21 +238,26 @@ folium.Choropleth(
 
 folium.LayerControl('bottomleft').add_to(chi_map)
 
-chi_map.save('exercise one/map.html')
+chi_map.save('figures/map.html')
 
 # Timeseries of crime over last two years
-df_2017 = pd.read_csv('exercise one/alleged_crimes_2017.csv')
-df_2018 = pd.read_csv('exercise one/alleged_crimes_2018.csv')
+df_2017 = pd.read_csv('alleged_crimes_2017.csv')
+df_2018 = pd.read_csv('alleged_crimes_2018.csv')
 df = df_2017.append(df_2018, ignore_index=True)
 
 df['date'] = pd.to_datetime(df['date'])
 df.index = df['date']
 timeseries = df.groupby(pd.Grouper(freq='M')).count()['arrest'].reset_index()
 timeseries.columns = ['date', 'number of reported crimes']
+timeseries['date'] = timeseries['date'].astype('str')
+timeseries['date'] = matplotlib.dates.datestr2num(timeseries['date'])
+timeseries.head()
+timeseries.dtypes
 
 g = sns.lineplot(x="date", y="number of reported crimes", data=timeseries)
-fig = plt.gcf()
-fig.savefig('exercise one/timeseries.png')
+fig = g.get_figure()
+fig.savefig('figures/timeseries.png')
+plt.close()
 
 ########
 # Part 2
@@ -248,7 +266,7 @@ fig.savefig('exercise one/timeseries.png')
 # https://www.socialexplorer.com/tables/ACS2017_5yr/R12107097
 # data dictionary is called R12107097_SL140.txt
 
-census_data = pd.read_csv('exercise one/R12107097_SL140.csv')
+census_data = pd.read_csv('R12107097_SL140.csv')
 census_data.rename(columns={'SE_A10003_001': 'avgHHsize',
                             'SE_A14010_001': 'medianFamInc',
                             'SE_A13003A_001': 'totalPopUnder18',
@@ -263,7 +281,7 @@ census_data['shareInPov'] = census_data[
 
 # I conducted the spatial join of the reports to tracts in R.
 # The code file that does that is called spatialJoinCrimesTracts.R
-df_2018 = pd.read_csv('exercise one/alleged_crimes_2018_with_tracts.csv')
+df_2018 = pd.read_csv('alleged_crimes_2018_with_tracts.csv')
 
 census_data.Geo_GEOID = census_data.Geo_GEOID.str.findall(pat="(?<=US).*$")
 census_data['Geo_GEOID'] = census_data['Geo_GEOID'].apply(lambda x: x[0])
@@ -272,7 +290,7 @@ merged_2018 = pd.merge(df_2018, census_data,
                        left_on='geoid10', right_on='Geo_GEOID',
                        how='left')
 
-df_2017 = pd.read_csv('exercise one/alleged_crimes_2017_with_tracts.csv')
+df_2017 = pd.read_csv('alleged_crimes_2017_with_tracts.csv')
 
 merged_2017 = pd.merge(df_2017, census_data,
                        left_on='geoid10', right_on='Geo_GEOID',
@@ -307,8 +325,9 @@ def plot_scatter(outcome, crime):
                scatter_kws={'s': 8},
                lowess=True)
     fig = plt.gcf()
-    path = 'exercise one/' + crime + '_' + outcome + '.png'
+    path = 'figures/' + crime + '_' + outcome + '.png'
     fig.savefig(path)
+    plt.close()
 
 
 plot_scatter('medianFamInc', 'BATTERY')
@@ -342,8 +361,9 @@ def plot_multi_year(outcome, crime):
                scatter_kws={'s': 6, 'alpha': 0.3},
                lowess=True)
     fig = plt.gcf()
-    path = 'exercise one/' + 'both_years_' + crime + '_' + outcome + '.png'
+    path = 'figures/' + 'both_years_' + crime + '_' + outcome + '.png'
     fig.savefig(path)
+    plt.close()
 
 
 plot_multi_year('medianFamInc', 'BATTERY')
@@ -376,9 +396,10 @@ def plot_two_vars(outcome, crime1, crime2):
     sns.scatterplot(x=outcome, y=varname, data=temp_df,
                     hue='type of report', s=6, alpha=0.5)
     fig = plt.gcf()
-    path = 'exercise one/' + 'compare' + \
+    path = 'figures/' + 'compare' + \
         crime1 + '_' + crime2 + '_' + outcome + '.png'
     fig.savefig(path)
+    plt.close()
     temp_df['weighted_amount'] = temp_df[varname] * temp_df[outcome]
     total_num_reports_crime1 = temp_df.loc[
                     temp_df['type of report'] == crime1, varname].sum()
