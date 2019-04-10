@@ -13,8 +13,6 @@ import matplotlib.pyplot as plt
 import datetime
 import os
 
-# You will need to set this to the root folder for the files
-# os.chdir("C:/Users/edwar.WJM-SONYLAPTOP/Documents/GitHub/ML_spring_2019")
 
 ###############################
 ###############################
