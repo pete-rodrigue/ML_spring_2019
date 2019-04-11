@@ -34,9 +34,9 @@ The files in this folder:
   * This is the crime data with the tract-level Census data about median family income, average household size, and poverty rates merged on.
 
 
-  ## To run the code in hw1.py:
+## To run the code in hw1.py:
 
   1. You will want to open the folder “exercise one”
   2. You will want to clone or download the folder “exercise one”
   3. In the folder “exercise one”, run the file “hw1.py”. Be sure that your working directory is the folder “exercise one”.
-  4. Things to note: There is an R script in the folder “exercise one” called “spatialJoinCrimesTracts.R”. I did the spatial join of crimes to census tracts in R, using this script. All of the figures are exported to the folder “figures”. 
+  4. Things to note: There is an R script in the folder “exercise one” called “spatialJoinCrimesTracts.R”. I did the spatial join of crimes to census tracts in R, using this script. All of the figures are exported to the folder “figures”.
