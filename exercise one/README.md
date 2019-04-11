@@ -1,6 +1,6 @@
 # README
 
-[!][Reported Crimes in Chicago][https://upload.wikimedia.org/wikipedia/commons/c/c4/Chicago_skyline%2C_viewed_from_John_Hancock_Center.jpg]
+[!][Chicago Skyline](https://upload.wikimedia.org/wikipedia/commons/c/c4/Chicago_skyline%2C_viewed_from_John_Hancock_Center.jpg)
 
 ## About
 
