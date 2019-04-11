@@ -1,6 +1,6 @@
-# README
-
 ![Chicago Skyline](https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Chicago_skyline%2C_viewed_from_John_Hancock_Center.jpg/1024px-Chicago_skyline%2C_viewed_from_John_Hancock_Center.jpg)
+
+# README
 
 ## About
 
