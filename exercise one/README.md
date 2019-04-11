@@ -1,5 +1,7 @@
 # README
 
+[!][Reported Crimes in Chicago][https://upload.wikimedia.org/wikipedia/commons/c/c4/Chicago_skyline%2C_viewed_from_John_Hancock_Center.jpg]
+
 ## About
 
 This folder contains all the files needed to make the figures present in the pdf "exercise one.pdf"
