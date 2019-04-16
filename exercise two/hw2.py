@@ -60,7 +60,8 @@ df = load_and_peek_at_data('exercise two/credit-data.csv', summary=True)
 # 2. Explore Data
 make_graphs(df)
 
-sns.pairplot(df)
+g = sns.pairplot(df[['SeriousDlqin2yrs', 'age', 'DebtRatio']])
+plt.show()
 
 df.columns
 
