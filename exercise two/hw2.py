@@ -129,6 +129,7 @@ from sklearn.externals.six import StringIO
 from IPython.display import Image
 from sklearn.tree import export_graphviz
 import pydotplus
+import graphviz
 
 dot_data = StringIO()
 export_graphviz(model, out_file=dot_data,
@@ -136,5 +137,10 @@ export_graphviz(model, out_file=dot_data,
                 special_characters=True)
 graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
 Image(graph.create_png())
+
+
+dot_data = tree.export_graphviz(model)
+graph = graphviz.Source(dot_data)
+graph
 
 # 6. Evaluate Classifier
