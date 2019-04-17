@@ -26,11 +26,13 @@ def load_and_peek_at_data(path, summary=False):
     if summary:
         print("\n\n\nSummary of data:")
         print(df.describe())
+        df.describe().to_csv('exercise two/figures/summary.csv')
 
     return df
 
 
 def make_graphs(df):
+    ''' lkdjfdlfkjdfl'''
     df_temp = df._get_numeric_data()
     for col in df_temp.columns:
         plt.clf()
@@ -53,6 +55,24 @@ def make_graphs(df):
         plt.savefig(path)
 
 
+def fill_missing(df):
+    ''' lkdjfdlfkjdfl'''
+    for col in df.columns:
+        if df[col].isna().any():
+            median_val = df[col].median()
+            df[col].fillna(median_val, inplace=True)
+
+
+def descretize_var(df, var, num_groups):
+    ''' lkdjfdlfkjdfl'''
+    labs = list(range(1,num_groups + 1))
+    labs = [str(x) for x in labs]
+    new_var = var + '_discrete'
+    df[new_var] = pd.qcut(df[var], num_groups, labels=labs)
+    return df
+
+
+
 # 1. Read/Load Data
 
 df = load_and_peek_at_data('exercise two/credit-data.csv', summary=True)
@@ -60,12 +80,20 @@ df = load_and_peek_at_data('exercise two/credit-data.csv', summary=True)
 # 2. Explore Data
 make_graphs(df)
 
-g = sns.pairplot(df[['SeriousDlqin2yrs', 'age', 'DebtRatio']])
-plt.show()
-
-df.columns
-
 # 3. Pre-Process and Clean Data
+
+fill_missing(df)
+
 # 4. Generate Features/Predictors
+
+# one function that can discretize a continuous variable
+df = descretize_var(df, 'MonthlyIncome', 3)
+
+# one function that can take a categorical
+# variable and create binary/dummy variables from it.
+
+
+
 # 5. Build Machine Learning Classifier
+
 # 6. Evaluate Classifier
