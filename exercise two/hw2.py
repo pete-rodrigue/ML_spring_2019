@@ -109,7 +109,7 @@ make_dummies(df, 'MonthlyIncome_discrete')
 
 # 5. Build Machine Learning Classifier
 model = tree.DecisionTreeClassifier()
-df.columns
+
 vars_to_omit = ['PersonID', 'SeriousDlqin2yrs']
 x_data = df[df.columns.difference(vars_to_omit)]
 y_data = df['SeriousDlqin2yrs']
@@ -120,8 +120,21 @@ model.score(X=x_data, y=y_data) # 1.0
 
 tree.export_graphviz(model, out_file='exercise two/figures/tree.dot')
 
-with open("exercise two/figures/tree.dot") as f:
-    dot_graph = f.read()
-g = graphviz.Source(dot_graph)
-g.view()
+# with open("exercise two/figures/tree.dot") as f:
+#     dot_graph = f.read()
+# g = graphviz.Source(dot_graph)
+# g.view()
+
+from sklearn.externals.six import StringIO
+from IPython.display import Image
+from sklearn.tree import export_graphviz
+import pydotplus
+
+dot_data = StringIO()
+export_graphviz(model, out_file=dot_data,
+                filled=True, rounded=True,
+                special_characters=True)
+graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
+Image(graph.create_png())
+
 # 6. Evaluate Classifier
