@@ -9,6 +9,11 @@ import seaborn as sns
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn import tree
+from sklearn.externals.six import StringIO
+from IPython.display import Image
+from sklearn.tree import export_graphviz
+import pydotplus
 
 
 def load_and_peek_at_data(path, summary=False):
@@ -69,8 +74,16 @@ def descretize_var(df, var, num_groups):
     labs = [str(x) for x in labs]
     new_var = var + '_discrete'
     df[new_var] = pd.qcut(df[var], num_groups, labels=labs)
+
     return df
 
+
+def make_dummies(df, var):
+    ''' lkdjfdlfkjdfl'''
+    new_var_prefix = "D_" + var
+
+    return pd.concat([df, pd.get_dummies(df[var], prefix=new_var_prefix)],
+                     axis=1)
 
 
 # 1. Read/Load Data
@@ -91,9 +104,24 @@ df = descretize_var(df, 'MonthlyIncome', 3)
 
 # one function that can take a categorical
 # variable and create binary/dummy variables from it.
-
+make_dummies(df, 'MonthlyIncome_discrete')
 
 
 # 5. Build Machine Learning Classifier
+model = tree.DecisionTreeClassifier()
+df.columns
+vars_to_omit = ['PersonID', 'SeriousDlqin2yrs']
+x_data = df[df.columns.difference(vars_to_omit)]
+y_data = df['SeriousDlqin2yrs']
+model.fit(X=x_data, y=y_data)
 
+model.feature_importances_ # [ 1.,  0.,  0.]
+model.score(X=x_data, y=y_data) # 1.0
+
+tree.export_graphviz(model, out_file='exercise two/figures/tree.dot')
+
+with open("exercise two/figures/tree.dot") as f:
+    dot_graph = f.read()
+g = graphviz.Source(dot_graph)
+g.view()
 # 6. Evaluate Classifier
