@@ -12,6 +12,8 @@ import numpy as np
 from sklearn import tree
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
+import pylab
+import scipy.stats as stats
 
 
 def load_and_peek_at_data(path, summary=False):
@@ -47,10 +49,20 @@ def make_graphs(df):
             g.set_title(col + " dist, log_transformed")
             g.set(xscale='log')
             plt.savefig(path)
+            plt.close()
+            path = "exercise two/figures/" + col + " normal_qq_plot log trans"
+            g = stats.probplot(np.log(df[col]+.0001), dist="norm", plot=pylab)
+            plt.title(col + " normal_qq log transformed")
+            plt.savefig(path)
         else:
             path = "exercise two/figures/" + col
             g = sns.distplot(mycol)
             g.set_title(col + " distribution")
+            plt.savefig(path)
+            plt.close()
+            path = "exercise two/figures/" + col + " normal_qq_plot"
+            g = stats.probplot(df[col], dist="norm", plot=pylab)
+            plt.title(col + " normal_qq")
             plt.savefig(path)
         plt.clf()
         path = "exercise two/figures/" + col + " boxplot"
@@ -173,6 +185,15 @@ plt.ylabel('Actual label')
 plt.xlabel('Predicted label')
 all_sample_title = 'Accuracy Score: {0}'.format(score)
 plt.title(all_sample_title, size = 15)
+
+
+
+for col in df.select_dtypes(include=[np.number]).columns:
+    path = "exercise two/figures/" + col + " normal_qq_plot"
+    plt.close()
+    g = stats.probplot(df[col], dist="norm", plot=pylab)
+    plt.title(col + "normal_qq")
+    plt.savefig(path)
 
 
 # 6. Evaluate Classifier
