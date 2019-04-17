@@ -10,10 +10,8 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import tree
-from sklearn.externals.six import StringIO
-from IPython.display import Image
-from sklearn.tree import export_graphviz
-import pydotplus
+from sklearn import metrics
+from sklearn.linear_model import LogisticRegression
 
 
 def load_and_peek_at_data(path, summary=False):
@@ -70,7 +68,7 @@ def fill_missing(df):
 
 def descretize_var(df, var, num_groups):
     ''' lkdjfdlfkjdfl'''
-    labs = list(range(1,num_groups + 1))
+    labs = list(range(1, num_groups + 1))
     labs = [str(x) for x in labs]
     new_var = var + '_discrete'
     df[new_var] = pd.qcut(df[var], num_groups, labels=labs)
@@ -86,6 +84,21 @@ def make_dummies(df, var):
                      axis=1)
 
 
+def run_tree_model(df, x_data, y_data, max_depth, outcome_labels):
+    '''kdlkdlksdjfl'''
+    model = tree.DecisionTreeClassifier(max_depth=5)
+    model.fit(X=x_data, y=y_data)
+
+    print('feature names:\n', x_data.columns)
+    print('feature importances:\n', model.feature_importances_)
+    print('score:\n', model.score(X=x_data, y=y_data))
+
+    tree.export_graphviz(model,
+                         out_file='exercise two/figures/tree.dot',
+                         feature_names=x_data.columns,
+                         class_names=outcome_labels,
+                         filled=True)
+
 # 1. Read/Load Data
 
 df = load_and_peek_at_data('exercise two/credit-data.csv', summary=True)
@@ -96,6 +109,13 @@ make_graphs(df)
 # 3. Pre-Process and Clean Data
 
 fill_missing(df)
+
+sns.heatmap(df[df.columns.difference(
+             ['PersonID',
+              'SeriousDlqin2yrs',
+              'zipcode',
+              'NumberOfTime60-89DaysPastDueNotWorse',
+              'NumberOfTimes90DaysLate'])].corr())
 
 # 4. Generate Features/Predictors
 
@@ -108,39 +128,54 @@ make_dummies(df, 'MonthlyIncome_discrete')
 
 
 # 5. Build Machine Learning Classifier
-model = tree.DecisionTreeClassifier()
-
-vars_to_omit = ['PersonID', 'SeriousDlqin2yrs']
-x_data = df[df.columns.difference(vars_to_omit)]
-y_data = df['SeriousDlqin2yrs']
-model.fit(X=x_data, y=y_data)
-
-model.feature_importances_ # [ 1.,  0.,  0.]
-model.score(X=x_data, y=y_data) # 1.0
-
-tree.export_graphviz(model, out_file='exercise two/figures/tree.dot')
-
-# with open("exercise two/figures/tree.dot") as f:
-#     dot_graph = f.read()
-# g = graphviz.Source(dot_graph)
-# g.view()
-
-from sklearn.externals.six import StringIO
-from IPython.display import Image
-from sklearn.tree import export_graphviz
-import pydotplus
-import graphviz
-
-dot_data = StringIO()
-export_graphviz(model, out_file=dot_data,
-                filled=True, rounded=True,
-                special_characters=True)
-graph = pydotplus.graph_from_dot_data(dot_data.getvalue())
-Image(graph.create_png())
+run_tree_model(df,
+               x_data=df[df.columns.difference(
+                            ['PersonID',
+                             'SeriousDlqin2yrs',
+                             'zipcode',
+                             'NumberOfTime60-89DaysPastDueNotWorse',
+                             'NumberOfTimes90DaysLate'])],
+               y_data=df['SeriousDlqin2yrs'],
+               max_depth=5,
+               outcome_labels=['Not Delinquent', 'Delinquent'])
 
 
-dot_data = tree.export_graphviz(model)
-graph = graphviz.Source(dot_data)
-graph
+logisticRegr = LogisticRegression()
+logisticRegr.fit(df[df.columns.difference(
+             ['PersonID',
+              'SeriousDlqin2yrs',
+              'zipcode',
+              'NumberOfTime60-89DaysPastDueNotWorse',
+              'NumberOfTimes90DaysLate'])],
+             df['SeriousDlqin2yrs'])
+
+predictions = logisticRegr.predict(
+                df[df.columns.difference(
+                             ['PersonID',
+                              'SeriousDlqin2yrs',
+                              'zipcode',
+                              'NumberOfTime60-89DaysPastDueNotWorse',
+                              'NumberOfTimes90DaysLate'])])
+
+cm = metrics.confusion_matrix(df['SeriousDlqin2yrs'], predictions)
+score = logisticRegr.score(
+    df[df.columns.difference(
+                 ['PersonID',
+                  'SeriousDlqin2yrs',
+                  'zipcode',
+                  'NumberOfTime60-89DaysPastDueNotWorse',
+                  'NumberOfTimes90DaysLate'])],
+        df['SeriousDlqin2yrs']
+)
+
+sns.heatmap(cm, annot=True, fmt=".3f", linewidths=.5, square = True, cmap = 'Blues_r')
+plt.ylabel('Actual label')
+plt.xlabel('Predicted label')
+all_sample_title = 'Accuracy Score: {0}'.format(score)
+plt.title(all_sample_title, size = 15)
+
 
 # 6. Evaluate Classifier
+
+predictions = model.predict(x_data)
+accuracy_score(y_true=y_data, y_pred=predictions)
