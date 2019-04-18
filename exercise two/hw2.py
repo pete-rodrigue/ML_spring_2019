@@ -17,7 +17,11 @@ import scipy.stats as stats
 
 
 def load_and_peek_at_data(path, summary=False):
-    '''loads our data and returns a pandas dataframe'''
+    '''
+    Loads our data and returns a pandas dataframe.
+    This function also saves a csv file with descriptive statistics for all
+    our variables to our figures folder.
+    '''
     df = pd.read_csv(path)
     print('Head of data:')
     print(df.head(5))
@@ -36,9 +40,28 @@ def load_and_peek_at_data(path, summary=False):
     return df
 
 
-def make_graphs(df):
-    ''' lkdjfdlfkjdfl'''
+def make_graphs(df, normal_qq_plots=False):
+    '''
+    Takes our dataframe, fills in missing values with the median,
+    and outputs a series of plots:
+            - Normal qq plots for each variable
+            - Boxplots for each variable
+            - Histograms for each variable
+        - A correlation plot for all our variables
+
+    Inputs:
+        df (pandas dataframe): our dataframe we want to modify
+    '''
     df_temp = df._get_numeric_data()
+    fill_missing(df_temp)
+    g = sns.heatmap(df[df.columns.difference(
+                 ['PersonID',
+                  'SeriousDlqin2yrs',
+                  'zipcode',
+                  'NumberOfTime60-89DaysPastDueNotWorse',
+                  'NumberOfTimes90DaysLate'])].corr())
+    plt.savefig('exercise two/figures/correlation_plot')
+    plt.close()
     for col in df_temp.columns:
         plt.clf()
         mycol = df_temp[col][df_temp[col].notna()]
@@ -50,20 +73,24 @@ def make_graphs(df):
             g.set(xscale='log')
             plt.savefig(path)
             plt.close()
-            path = "exercise two/figures/" + col + " normal_qq_plot log trans"
-            g = stats.probplot(np.log(df[col]+.0001), dist="norm", plot=pylab)
-            plt.title(col + " normal_qq log transformed")
-            plt.savefig(path)
+            if normal_qq_plots:
+                path = "exercise two/figures/" + col + \
+                       " normal_qq_plot log trans"
+                g = stats.probplot(np.log(df[col]+.0001),
+                                   dist="norm", plot=pylab)
+                plt.title(col + " normal_qq log transformed")
+                plt.savefig(path)
         else:
             path = "exercise two/figures/" + col
             g = sns.distplot(mycol)
             g.set_title(col + " distribution")
             plt.savefig(path)
             plt.close()
-            path = "exercise two/figures/" + col + " normal_qq_plot"
-            g = stats.probplot(df[col], dist="norm", plot=pylab)
-            plt.title(col + " normal_qq")
-            plt.savefig(path)
+            if normal_qq_plots:
+                path = "exercise two/figures/" + col + " normal_qq_plot"
+                g = stats.probplot(df[col], dist="norm", plot=pylab)
+                plt.title(col + " normal_qq")
+                plt.savefig(path)
         plt.clf()
         path = "exercise two/figures/" + col + " boxplot"
         g = sns.boxplot(mycol)
@@ -71,7 +98,13 @@ def make_graphs(df):
 
 
 def fill_missing(df):
-    ''' lkdjfdlfkjdfl'''
+    '''
+    Fill missing numerica data in our data frame with the median value of that
+    variable. Modifies the dataframe in place. Does not return anything.
+
+    Inputs:
+        df (pandas dataframe): our dataframe we want to modify
+    '''
     for col in df.columns:
         if df[col].isna().any():
             median_val = df[col].median()
@@ -79,7 +112,17 @@ def fill_missing(df):
 
 
 def descretize_var(df, var, num_groups):
-    ''' lkdjfdlfkjdfl'''
+    '''
+    Takes one of our variables and splits it into discrete groupsself.
+
+    Inputs:
+        df (pandas dataframe): our dataframe we want to modify
+        var (str): the column in our dataframe that we want to make a
+                   categorical variable from
+        num_groups (int): the number of groups our discrete variable will have
+
+    Returns: a modified dataframe.
+    '''
     labs = list(range(1, num_groups + 1))
     labs = [str(x) for x in labs]
     new_var = var + '_discrete'
@@ -89,7 +132,16 @@ def descretize_var(df, var, num_groups):
 
 
 def make_dummies(df, var):
-    ''' lkdjfdlfkjdfl'''
+    '''
+    Takes our dataframe and turns a specified variable into a series of
+    dummy columns. This function returns the modified dataframe.
+
+    Inputs:
+        df (pandas dataframe): our dataframe we want to modify
+        var (str): the column in our dataframe that we want to make dummies of
+
+    Returns: a modified dataframe.
+    '''
     new_var_prefix = "D_" + var
 
     return pd.concat([df, pd.get_dummies(df[var], prefix=new_var_prefix)],
@@ -97,7 +149,15 @@ def make_dummies(df, var):
 
 
 def run_tree_model(df, x_data, y_data, max_depth, outcome_labels):
-    '''kdlkdlksdjfl'''
+    '''
+    This function takes our data and computes a decision tree model.
+    It saves a .dot file you can open in graphviz to see the tree.
+    Inputs:
+        x_data (pandas dataframe): data frame where each column is a predictor
+        y_data (pandas series): series of outcomes
+        max_depth (int): the maximum depth of the tree.
+        outcome_labels (list of str): the labels for our predictor variables.
+    '''
     model = tree.DecisionTreeClassifier(max_depth=5)
     model.fit(X=x_data, y=y_data)
 
@@ -111,23 +171,49 @@ def run_tree_model(df, x_data, y_data, max_depth, outcome_labels):
                          class_names=outcome_labels,
                          filled=True)
 
-# 1. Read/Load Data
 
+def run_logit_model(x_data, y_data, threshold=.5):
+    '''
+    This function takes our x and y data and a threshold,
+    and computes a logistic model. It exports a confusion matrix table.
+
+    Inputs:
+        x_data (pandas dataframe): data frame where each column is a predictor
+        y_data (pandas series): series of outcomes
+        threshold (float): the threshold, between 0 and 1, that we'll use to
+                           to decide if a given row is predicted to be a
+                           positive in the target class or not.
+    '''
+    logisticRegr = LogisticRegression()
+    logisticRegr.fit(x_data, y_data)
+
+    predicted_probs = pd.DataFrame(logisticRegr.predict_proba(x_data))
+    predicted_probs['predicted_class'] = 0
+    predicted_probs.columns
+    predicted_probs.loc[predicted_probs[1] > threshold, 'predicted_class'] = 1
+    cm = metrics.confusion_matrix(y_data, predicted_probs['predicted_class'])
+
+    score = (cm[0][0] + cm[1][1]) / sum(sum(cm))
+
+    plt.clf()
+    g = sns.heatmap(cm, annot=True, fmt=".3f", linewidths=.5,
+                    square=True, cmap='Blues_r')
+    plt.ylabel('Actual label')
+    plt.xlabel('Predicted label')
+    all_sample_title = 'Using {0} threshold, score is: {1}'.format(
+                                                            threshold, score)
+    plt.title(all_sample_title, size=15)
+    plt.savefig('exercise two/figures/logistic_confusion_matrix')
+    plt.clf()
+
+# 1. Read/Load Data
 df = load_and_peek_at_data('exercise two/credit-data.csv', summary=True)
 
 # 2. Explore Data
-make_graphs(df)
+make_graphs(df, normal_qq_plots=False)
 
 # 3. Pre-Process and Clean Data
-
 fill_missing(df)
-
-sns.heatmap(df[df.columns.difference(
-             ['PersonID',
-              'SeriousDlqin2yrs',
-              'zipcode',
-              'NumberOfTime60-89DaysPastDueNotWorse',
-              'NumberOfTimes90DaysLate'])].corr())
 
 # 4. Generate Features/Predictors
 
@@ -139,7 +225,7 @@ df = descretize_var(df, 'MonthlyIncome', 3)
 make_dummies(df, 'MonthlyIncome_discrete')
 
 
-# 5. Build Machine Learning Classifier
+# 5. Build Machine Learning Classifier and 6. Evaluate Classifier
 run_tree_model(df,
                x_data=df[df.columns.difference(
                             ['PersonID',
@@ -151,52 +237,10 @@ run_tree_model(df,
                max_depth=5,
                outcome_labels=['Not Delinquent', 'Delinquent'])
 
-
-logisticRegr = LogisticRegression()
-logisticRegr.fit(df[df.columns.difference(
-             ['PersonID',
-              'SeriousDlqin2yrs',
-              'zipcode',
-              'NumberOfTime60-89DaysPastDueNotWorse',
-              'NumberOfTimes90DaysLate'])],
-             df['SeriousDlqin2yrs'])
-
-predictions = logisticRegr.predict(
-                df[df.columns.difference(
-                             ['PersonID',
-                              'SeriousDlqin2yrs',
-                              'zipcode',
-                              'NumberOfTime60-89DaysPastDueNotWorse',
-                              'NumberOfTimes90DaysLate'])])
-
-cm = metrics.confusion_matrix(df['SeriousDlqin2yrs'], predictions)
-score = logisticRegr.score(
-    df[df.columns.difference(
+run_logit_model(x_data=df[df.columns.difference(
                  ['PersonID',
                   'SeriousDlqin2yrs',
                   'zipcode',
                   'NumberOfTime60-89DaysPastDueNotWorse',
                   'NumberOfTimes90DaysLate'])],
-        df['SeriousDlqin2yrs']
-)
-
-sns.heatmap(cm, annot=True, fmt=".3f", linewidths=.5, square = True, cmap = 'Blues_r')
-plt.ylabel('Actual label')
-plt.xlabel('Predicted label')
-all_sample_title = 'Accuracy Score: {0}'.format(score)
-plt.title(all_sample_title, size = 15)
-
-
-
-for col in df.select_dtypes(include=[np.number]).columns:
-    path = "exercise two/figures/" + col + " normal_qq_plot"
-    plt.close()
-    g = stats.probplot(df[col], dist="norm", plot=pylab)
-    plt.title(col + "normal_qq")
-    plt.savefig(path)
-
-
-# 6. Evaluate Classifier
-
-predictions = model.predict(x_data)
-accuracy_score(y_true=y_data, y_pred=predictions)
+                y_data=df['SeriousDlqin2yrs'], threshold=.25)
