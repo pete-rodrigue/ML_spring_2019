@@ -189,7 +189,6 @@ def run_logit_model(x_data, y_data, threshold=.5):
 
     predicted_probs = pd.DataFrame(logisticRegr.predict_proba(x_data))
     predicted_probs['predicted_class'] = 0
-    predicted_probs.columns
     predicted_probs.loc[predicted_probs[1] > threshold, 'predicted_class'] = 1
     cm = metrics.confusion_matrix(y_data, predicted_probs['predicted_class'])
 
@@ -205,6 +204,67 @@ def run_logit_model(x_data, y_data, threshold=.5):
     plt.title(all_sample_title, size=15)
     plt.savefig('exercise two/figures/logistic_confusion_matrix')
     plt.clf()
+
+
+def logit_try_diff_thresholds(x_data, y_data, step=.05):
+    '''
+    This function takes our x and y data and a step,
+    and computes a series of logistic models, where the threshold increases
+    by the amount given by the step each time.
+
+    Inputs:
+        x_data (pandas dataframe): data frame where each column is a predictor
+        y_data (pandas series): series of outcomes
+        step (float): the amount our threshold will increase each time.
+    '''
+    logisticRegr = LogisticRegression()
+    logisticRegr.fit(x_data, y_data)
+    predicted_probs = pd.DataFrame(logisticRegr.predict_proba(x_data))
+    true_pos_correctly_id = []
+    true_neg_correctly_id = []
+
+    for threshold in np.arange(0, 1.000001, step):
+        predicted_probs['predicted_class'] = 0
+        predicted_probs.loc[predicted_probs[1] > threshold,
+                            'predicted_class'] = 1
+        cm = metrics.confusion_matrix(y_data,
+                                      predicted_probs['predicted_class'])
+        score = (cm[0][0] + cm[1][1]) / sum(sum(cm))
+        share_true_negatives = cm[0][0] / sum(cm[0])
+        share_true_positives = cm[1][1] / sum(cm[1])
+        share_false_negatives = cm[1][0] / sum(cm[0])
+        share_false_positives = cm[0][1] / sum(cm[1])
+        print("\nThreshold is: ", threshold, '\n',
+              'Score is: ', score, '\n',
+              'Percent true of negatives correctly identified: ',
+              round(share_true_negatives*100, 2),
+              '\nPercent of true positives erroneously labeled negative: ',
+              round(share_false_negatives*100, 2),
+              '\nPercent of true positives correctly identified: ',
+              round(share_true_positives*100, 2),
+              '\nPercent of true negatives erroneously labeled positive: ',
+              round(share_false_positives*100, 2),
+              '\n\n')
+        true_pos_correctly_id.append(share_true_positives)
+        true_neg_correctly_id.append(share_true_negatives)
+
+    len_vector = len(np.arange(0, 1.000001, step))
+    category = ['true positive']*len_vector
+    category = category + ['true negative']*len_vector
+    values = true_pos_correctly_id
+    values = values + true_neg_correctly_id
+    thresholds = list(np.arange(0, 1.000001, step))
+    thresholds = thresholds + list(np.arange(0, 1.000001, step))
+    to_plot = pd.DataFrame({'values': values,
+                            'threshold': thresholds,
+                            'category': category})
+    plt.clf()
+    sns.lineplot(x=thresholds,
+                 y=values, hue=category, data=to_plot)
+    plt.title("Share of pos and neg correctly id'd, by threshold", size=15)
+    plt.savefig('exercise two/figures/logistic_correctly_id_by_threshold')
+    plt.clf()
+
 
 # 1. Read/Load Data
 df = load_and_peek_at_data('exercise two/credit-data.csv', summary=True)
@@ -244,3 +304,11 @@ run_logit_model(x_data=df[df.columns.difference(
                   'NumberOfTime60-89DaysPastDueNotWorse',
                   'NumberOfTimes90DaysLate'])],
                 y_data=df['SeriousDlqin2yrs'], threshold=.25)
+
+logit_try_diff_thresholds(x_data=df[df.columns.difference(
+                 ['PersonID',
+                  'SeriousDlqin2yrs',
+                  'zipcode',
+                  'NumberOfTime60-89DaysPastDueNotWorse',
+                  'NumberOfTimes90DaysLate'])],
+                y_data=df['SeriousDlqin2yrs'], step=.1)
