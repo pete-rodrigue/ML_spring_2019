@@ -28,7 +28,7 @@ import random
 
 # ## Define pipeline functions
 
-def load_and_peek_at_data(path, summary=False):
+def load_and_peek_at_data(path, date_vars=None, summary=False):
     '''
     Loads our data and returns a pandas dataframe.
     This function also saves a csv file with descriptive statistics for all
@@ -50,6 +50,10 @@ def load_and_peek_at_data(path, summary=False):
     print('number of rows of data:')
     print(len(df))
     print(separator)
+
+    if date_vars:
+        for var in date_vars:
+            df[var] = pd.to_datetime(df[var])
 
     if summary:
         print("\n\n\nSummary of data:")
@@ -84,6 +88,8 @@ def make_graphs(df, normal_qq_plots=False):
     # temporal splits.
     fill_missing(df_temp)
     # correlation plot:
+    plt.figure(figsize=(8, 8))
+    plt.tight_layout()
     g = sns.heatmap(df[df.columns.difference(
                  ['PersonID',
                   'SeriousDlqin2yrs',
@@ -96,7 +102,6 @@ def make_graphs(df, normal_qq_plots=False):
     # this for loop will loop through each of our varaibles and export
     # distribution plots to the figures folder
     for col in df_temp.columns:
-        plt.clf()
         mycol = df_temp[col][df_temp[col].notna()]
         print('skew', ' for col ', mycol.name, 'is:', mycol.skew())
         # if the skew of our distribution is greater than 10, log transform it
@@ -107,7 +112,6 @@ def make_graphs(df, normal_qq_plots=False):
             g.set(xscale='log')
             # export our distribution plot to the figures folder
             plt.savefig(path)
-            plt.close()
             if normal_qq_plots:
                 path = "figures/" + col + " normal_qq_plot log trans"
                 g = stats.probplot(np.log(df[col]+.0001),
@@ -226,9 +230,9 @@ def run_tree_model(x_data, y_data, x_test=None,
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
         predicted_probs['predicted_class'] = 0
-        # get the cutoff to classify *threshold* percent of rows as positive
+        # get the cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_test,
                                       predicted_probs['predicted_class'])
@@ -240,9 +244,9 @@ def run_tree_model(x_data, y_data, x_test=None,
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_data,
                                       predicted_probs['predicted_class'])
@@ -272,9 +276,9 @@ def run_logit_model(x_data, y_data, x_test=None, y_test=None,
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_test,
                                       predicted_probs['predicted_class'])
@@ -286,9 +290,9 @@ def run_logit_model(x_data, y_data, x_test=None, y_test=None,
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_data,
                                       predicted_probs['predicted_class'])
@@ -319,9 +323,9 @@ def run_knn_model(x_data, y_data, x_test=None, y_test=None,
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_test,
                                       predicted_probs['predicted_class'])
@@ -333,9 +337,9 @@ def run_knn_model(x_data, y_data, x_test=None, y_test=None,
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of our rows as positive
+        # get cut_off to classify *threshold* percent of our rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_data,
                                       predicted_probs['predicted_class'])
@@ -352,20 +356,20 @@ def run_svm_model(x_data_scaled, y_data, x_test=None,
     Runs an SVM model on your data
     Note: this will run much faster if you scale your x data first
     '''
-    mymodel = svm.SVC(kernel='linear', probability=True)
+    mymodel = svm.LinearSVC(tol=.0000001, random_state=0, C=0.01)
     mymodel.fit(x_data_scaled, y_data)
-    mypreds = mymodel.predict(x_data_scaled)
 
-    print('************Random Forest')
+    print('************SVC')
     print("*********Threshold:{0}".format(threshold))
 
     if use_test_sets:
         print('Returning test set performance:')
-        predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
+        predicted_probs = pd.DataFrame(mymodel.decision_function(x_data_scaled))
+        print(predicted_probs)
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        # get cut_off to classify *threshold* percent of rows as positive
+        cut_off = np.percentile(a=predicted_probs, q=threshold)
+        predicted_probs.loc[predicted_probs >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_test,
                                       predicted_probs['predicted_class'])
@@ -375,11 +379,11 @@ def run_svm_model(x_data_scaled, y_data, x_test=None,
 
     else:
         print('Returning training set performance:')
-        predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data_scaled))
+        predicted_probs = pd.DataFrame(mymodel.decision_function(x_data_scaled))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        # get cut_off to classify *threshold* percent of rows as positive
+        cut_off = np.percentile(a=predicted_probs, q=threshold)
+        predicted_probs.loc[predicted_probs >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_data,
                                       predicted_probs['predicted_class'])
@@ -411,9 +415,9 @@ def run_forest(x_data, y_data, x_test=None, y_test=None,
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_test,
                                       predicted_probs['predicted_class'])
@@ -425,9 +429,9 @@ def run_forest(x_data, y_data, x_test=None, y_test=None,
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_data,
                                       predicted_probs['predicted_class'])
@@ -455,9 +459,9 @@ def run_boosted_model(x_data, y_data, x_test=None, y_test=None,
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_test,
                                       predicted_probs['predicted_class'])
@@ -469,9 +473,9 @@ def run_boosted_model(x_data, y_data, x_test=None, y_test=None,
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_data,
                                       predicted_probs['predicted_class'])
@@ -487,7 +491,7 @@ def run_bagging_model(x_data, y_data, x_test=None,
     Runs a bagging model
     '''
     mymodel = BaggingClassifier(KNeighborsClassifier(n_neighbors=16),
-                                max_samples=100, max_features=1000)
+                                max_samples=100)
     mymodel.fit(x_data, y_data)
 
     print('************Bagged KNN')
@@ -497,9 +501,9 @@ def run_bagging_model(x_data, y_data, x_test=None,
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_test,
                                       predicted_probs['predicted_class'])
@@ -511,9 +515,9 @@ def run_bagging_model(x_data, y_data, x_test=None,
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
         predicted_probs['predicted_class'] = 0
-        # get cutoff to classify *threshold* percent of rows as positive
+        # get cut_off to classify *threshold* percent of rows as positive
         cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cutoff,
+        predicted_probs.loc[predicted_probs[1] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_data,
                                       predicted_probs['predicted_class'])
@@ -661,11 +665,11 @@ def split_using_date(data, train_start_date, train_end_date,
     '''
     Splits our data into test and training sets using a date the user provides
     '''
-    train = projects.loc[projects['date_posted'].between(
+    train = data.loc[data['date_posted'].between(
                                                     train_start_date,
                                                     train_end_date,
                                                     inclusive=True), :]
-    test = projects.loc[projects['date_posted'].between(
+    test = data.loc[data['date_posted'].between(
                                                     test_start_date,
                                                     test_end_date,
                                                     inclusive=False), :]
