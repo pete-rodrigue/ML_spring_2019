@@ -150,7 +150,7 @@ def fill_missing(df, imputation_method='mean'):
                                     The default is mean.
     '''
     for col in df.columns:
-        if df[col].isna().any():
+        if df[col].isnull().values.any():
             if imputation_method == 'mean':
                 imputed_val = df[col].mean()
             else:
@@ -224,35 +224,39 @@ def run_tree_model(x_data, y_data, x_test=None,
     mymodel.fit(X=x_data, y=y_data)
 
     print("***************Tree model")
-    print("*********Threshold:{0}".format(threshold))
+    # print("*********Threshold:{0}".format(threshold))
 
     if use_test_sets:
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
-        predicted_probs['predicted_class'] = 0
-        # get the cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_test,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
+        # predicted_probs['predicted_class'] = 0
+        # # get the cut_off to classify *threshold* percent of rows as positive
+        # cut_off = np.percentile(a=predicted_probs[1], q=threshold)
+        # predicted_probs.loc[predicted_probs[1] >= cut_off,
+        #                     'predicted_class'] = 1
+        # cm = metrics.confusion_matrix(y_test,
+        #                               predicted_probs['predicted_class'])
+        # print_confusion_matrix(cm)
+        #
+        # return cm
 
     else:
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_data,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
+        # predicted_probs['predicted_class'] = 0
+        # # get cut_off to classify *threshold* percent of rows as positive
+        # cut_off = np.percentile(a=predicted_probs[1], q=threshold)
+        # predicted_probs.loc[predicted_probs[1] >= cut_off,
+        #                     'predicted_class'] = 1
+        # cm = metrics.confusion_matrix(y_data,
+        #                               predicted_probs['predicted_class'])
+        # print_confusion_matrix(cm)
+        #
+        # return cm
 
 
 # ### Logit model
@@ -270,35 +274,39 @@ def run_logit_model(x_data, y_data, x_test=None, y_test=None,
     mymodel.fit(x_data, y_data)
 
     print('***********Logistic regression')
-    print("*********Threshold:{0}".format(threshold))
+    # print("*********Threshold:{0}".format(threshold))
 
     if use_test_sets:
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_test,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
+        # predicted_probs['predicted_class'] = 0
+        # # get cut_off to classify *threshold* percent of rows as positive
+        # cut_off = np.percentile(a=predicted_probs[1], q=threshold)
+        # predicted_probs.loc[predicted_probs[1] >= cut_off,
+        #                     'predicted_class'] = 1
+        # cm = metrics.confusion_matrix(y_test,
+        #                               predicted_probs['predicted_class'])
+        # print_confusion_matrix(cm)
+        #
+        # return cm
 
     else:
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_data,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
+        # predicted_probs['predicted_class'] = 0
+        # # get cut_off to classify *threshold* percent of rows as positive
+        # cut_off = np.percentile(a=predicted_probs[1], q=threshold)
+        # predicted_probs.loc[predicted_probs[1] >= cut_off,
+        #                     'predicted_class'] = 1
+        # cm = metrics.confusion_matrix(y_data,
+        #                               predicted_probs['predicted_class'])
+        # print_confusion_matrix(cm)
+        #
+        # return cm
 
 
 # ### K-Nearest Neighbor
@@ -317,78 +325,91 @@ def run_knn_model(x_data, y_data, x_test=None, y_test=None,
     mymodel.fit(x_data, y_data)
 
     print('************KNN')
-    print("*********Threshold:{0}".format(threshold))
+    # print("*********Threshold:{0}".format(threshold))
 
     if use_test_sets:
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_test,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
+        # predicted_probs['predicted_class'] = 0
+        # # get cut_off to classify *threshold* percent of rows as positive
+        # cut_off = np.percentile(a=predicted_probs[1], q=threshold)
+        # predicted_probs.loc[predicted_probs[1] >= cut_off,
+        #                     'predicted_class'] = 1
+        # cm = metrics.confusion_matrix(y_test,
+        #                               predicted_probs['predicted_class'])
+        # print_confusion_matrix(cm)
+        #
+        # return cm
 
     else:
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of our rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_data,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
+        # predicted_probs['predicted_class'] = 0
+        # # get cut_off to classify *threshold* percent of our rows as positive
+        # cut_off = np.percentile(a=predicted_probs[1], q=threshold)
+        # predicted_probs.loc[predicted_probs[1] >= cut_off,
+        #                     'predicted_class'] = 1
+        # cm = metrics.confusion_matrix(y_data,
+        #                               predicted_probs['predicted_class'])
+        # print_confusion_matrix(cm)
+        #
+        # return cm
 
 
 # SVM
 def run_svm_model(x_data_scaled, y_data, x_test=None,
                   y_test=None, kernel='linear',
-                  threshold=50, use_test_sets=False):
+                  threshold=50, use_test_sets=False,
+                  my_svc_tol=.0000001,
+                  my_svc_random_state=0,
+                  my_svc_C=0.01):
     '''
     Runs an SVM model on your data
     Note: this will run much faster if you scale your x data first
     '''
-    mymodel = svm.LinearSVC(tol=.0000001, random_state=0, C=0.01)
+    mymodel = svm.LinearSVC(tol=my_svc_tol,
+                            random_state=my_svc_random_state,
+                            C=my_svc_C)
     mymodel.fit(x_data_scaled, y_data)
 
     print('************SVC')
-    print("*********Threshold:{0}".format(threshold))
+    # print("*********Threshold:{0}".format(threshold))
 
     if use_test_sets:
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.decision_function(x_test))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[0], q=threshold)
-        predicted_probs.loc[predicted_probs[0] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_test,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
+        # predicted_probs['predicted_class'] = 0
+        # # get cut_off to classify *threshold* percent of rows as positive
+        # cut_off = np.percentile(a=predicted_probs[0], q=threshold)
+        # predicted_probs.loc[predicted_probs[0] >= cut_off,
+        #                     'predicted_class'] = 1
+        # cm = metrics.confusion_matrix(y_test,
+        #                               predicted_probs['predicted_class'])
+        # print_confusion_matrix(cm)
+        #
+        # return cm
 
     else:
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.decision_function(x_data_scaled))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[0], q=threshold)
-        predicted_probs.loc[predicted_probs[0] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_data,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
+        # predicted_probs['predicted_class'] = 0
+        # # get cut_off to classify *threshold* percent of rows as positive
+        # cut_off = np.percentile(a=predicted_probs[0], q=threshold)
+        # predicted_probs.loc[predicted_probs[0] >= cut_off,
+        #                     'predicted_class'] = 1
+        # cm = metrics.confusion_matrix(y_data,
+        #                               predicted_probs['predicted_class'])
+        # print_confusion_matrix(cm)
+        #
+        # return cm
 
 
 # Random Forest
@@ -408,35 +429,29 @@ def run_forest(x_data, y_data, x_test=None, y_test=None,
     mymodel.fit(x_data, y_data)
 
     print('************Random Forest')
-    print("*********Threshold:{0}".format(threshold))
+    # print("*********Threshold:{0}".format(threshold))
 
     if use_test_sets:
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_test,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
+        # predicted_probs['predicted_class'] = 0
+        # # get cut_off to classify *threshold* percent of rows as positive
+        # cut_off = np.percentile(a=predicted_probs[1], q=threshold)
+        # predicted_probs.loc[predicted_probs[1] >= cut_off,
+        #                     'predicted_class'] = 1
+        # cm = metrics.confusion_matrix(y_test,
+        #                               predicted_probs['predicted_class'])
+        # print_confusion_matrix(cm)
+        #
+        # return cm
 
     else:
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_data,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
 
 
 # Boosting
@@ -446,84 +461,54 @@ def run_boosted_model(x_data, y_data, x_test=None, y_test=None,
     '''
     Run a boosted decision tree model
     '''
-    mymodel = AdaBoostClassifier(tree.DecisionTreeClassifier(max_depth=5),
+    mymodel = AdaBoostClassifier(tree.DecisionTreeClassifier(
+                                max_depth=my_max_depth),
                                  algorithm="SAMME",
-                                 n_estimators=10)
+                                 n_estimators=my_n_estimators)
     mymodel.fit(x_data, y_data)
 
     print('************Boosted Decision Tree')
-    print("*********Threshold:{0}".format(threshold))
+    # print("*********Threshold:{0}".format(threshold))
 
     if use_test_sets:
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_test,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
 
     else:
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_data,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
 
 
 # Bagging
 def run_bagging_model(x_data, y_data, x_test=None,
-                      y_test=None, threshold=50, use_test_sets=False,
-                      max_depth=20):
+                      y_test=None, use_test_sets=False,
+                      max_depth=20, my_max_bagging_samples=200):
     '''
     Runs a bagging model
     '''
-    mymodel = BaggingClassifier(tree.DecisionTreeClassifier(max_depth=max_depth),
-                                max_samples=200)
+    mymodel = BaggingClassifier(
+                    tree.DecisionTreeClassifier(max_depth=max_depth),
+                    max_samples=my_max_bagging_samples)
     mymodel.fit(x_data, y_data)
 
     print('************Bagged Tree')
-    print("*********Threshold:{0}".format(threshold))
+    # print("*********Threshold:{0}".format(threshold))
 
     if use_test_sets:
         print('Returning test set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_test))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_test,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
 
     else:
         print('Returning training set performance:')
         predicted_probs = pd.DataFrame(mymodel.predict_proba(x_data))
-        predicted_probs['predicted_class'] = 0
-        # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs[1], q=threshold)
-        predicted_probs.loc[predicted_probs[1] >= cut_off,
-                            'predicted_class'] = 1
-        cm = metrics.confusion_matrix(y_data,
-                                      predicted_probs['predicted_class'])
-        print_confusion_matrix(cm)
 
-        return cm
+        return predicted_probs
 
 
 # ### Looping through models to compare performance
@@ -537,7 +522,12 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
                    my_max_depth=5, my_n_estimators=100,
                    num_n=16,
                    outcome_labels=None,
-                   mykernel='linear'):
+                   mykernel='linear',
+                   my_max_bagging_samples=200,
+                   my_svc_tol=.0000001,
+                   my_svc_random_state=0,
+                   my_svc_C=0.01,
+                   split_name=""):
     '''
     Compare all our models
     '''
@@ -547,12 +537,24 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
     precision = []   # records the precision we got
     current_threshold = []   # records teh threshold we used
 
+    # in each of these if statements, we loop through the thresholds,
+    # recalculating the model each time.
     if run_bagging:
-        # in each of these if statements, we loop through the thresholds,
-        # recalculating the model each time.
+        predicted_probs = run_bagging_model(x_data, y_data,
+                                            x_test=x_test,
+                                            y_test=y_test,
+                                            use_test_sets=use_test_data,
+                                            max_depth=my_max_depth)
         for t in mythresholds:
-            cm = run_bagging_model(x_data, y_data, threshold=t, x_test=x_test,
-                                   y_test=y_test, use_test_sets=use_test_data)
+            print('Threshold: ', t)
+            predicted_probs['predicted_class'] = 0
+            # get cut_off to classify *threshold* percent of rows as positive
+            cut_off = np.percentile(a=predicted_probs[1], q=t)
+            predicted_probs.loc[predicted_probs[1] >= cut_off,
+                                'predicted_class'] = 1
+            cm = metrics.confusion_matrix(y_test,
+                                          predicted_probs['predicted_class'])
+            print_confusion_matrix(cm)
             tpr.append(cm[1][1] / sum(cm[1]))   # append true positive rate
             fpr.append(cm[0][1] / sum(cm[0]))   # append false positive rate
             model.append('bagging')
@@ -560,12 +562,21 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
             print('\n')
     if run_boosted:
+        predicted_probs = run_boosted_model(x_data=x_data, y_data=y_data,
+                                            my_max_depth=my_max_depth,
+                                            my_n_estimators=my_n_estimators,
+                                            x_test=x_test, y_test=y_test,
+                                            use_test_sets=use_test_data)
         for t in mythresholds:
-            cm = run_boosted_model(x_data=x_data, y_data=y_data,
-                                   my_max_depth=my_max_depth,
-                                   my_n_estimators=my_n_estimators,
-                                   threshold=t, x_test=x_test, y_test=y_test,
-                                   use_test_sets=use_test_data)
+            print('Threshold: ', t)
+            predicted_probs['predicted_class'] = 0
+            # get cut_off to classify *threshold* percent of rows as positive
+            cut_off = np.percentile(a=predicted_probs[1], q=t)
+            predicted_probs.loc[predicted_probs[1] >= cut_off,
+                                'predicted_class'] = 1
+            cm = metrics.confusion_matrix(y_test,
+                                          predicted_probs['predicted_class'])
+            print_confusion_matrix(cm)
             tpr.append(cm[1][1] / sum(cm[1]))
             fpr.append(cm[0][1] / sum(cm[0]))
             model.append('boosted')
@@ -573,9 +584,19 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
             print('\n')
     if run_a_forest:
+        predicted_probs = run_forest(x_data, y_data, x_test, y_test,
+                                     my_n_estimators, my_max_depth,
+                                     use_test_sets=use_test_data)
         for t in mythresholds:
-            cm = run_forest(x_data, y_data, x_test, y_test,
-                            my_n_estimators, my_max_depth, t, use_test_data)
+            print('Threshold: ', t)
+            predicted_probs['predicted_class'] = 0
+            # get cut_off to classify *threshold* percent of rows as positive
+            cut_off = np.percentile(a=predicted_probs[1], q=t)
+            predicted_probs.loc[predicted_probs[1] >= cut_off,
+                                'predicted_class'] = 1
+            cm = metrics.confusion_matrix(y_test,
+                                          predicted_probs['predicted_class'])
+            print_confusion_matrix(cm)
             tpr.append(cm[1][1] / sum(cm[1]))
             fpr.append(cm[0][1] / sum(cm[0]))
             model.append('forest')
@@ -583,10 +604,24 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
             print('\n')
     if run_svm:
+        predicted_probs = run_svm_model(x_data_scaled, y_data,
+                                        x_test=x_test_scaled,
+                                        y_test=y_test,
+                                        use_test_sets=use_test_data,
+                                        kernel=mykernel,
+                                        my_svc_tol=my_svc_tol,
+                                        my_svc_random_state=my_svc_random_state,
+                                        my_svc_C=my_svc_C)
         for t in mythresholds:
-            cm = run_svm_model(x_data_scaled, y_data, threshold=t,
-                               x_test=x_test_scaled, y_test=y_test,
-                               use_test_sets=use_test_data, kernel=mykernel)
+            print('Threshold: ', t)
+            predicted_probs['predicted_class'] = 0
+            # get cut_off to classify *threshold* percent of rows as positive
+            cut_off = np.percentile(a=predicted_probs[0], q=t)
+            predicted_probs.loc[predicted_probs[0] >= cut_off,
+                                'predicted_class'] = 1
+            cm = metrics.confusion_matrix(y_test,
+                                          predicted_probs['predicted_class'])
+            print_confusion_matrix(cm)
             tpr.append(cm[1][1] / sum(cm[1]))
             fpr.append(cm[0][1] / sum(cm[0]))
             model.append('svm')
@@ -594,10 +629,19 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
             print('\n')
     if run_knn:
+        predicted_probs = run_knn_model(x_data, y_data, num_n=num_n,
+                                        x_test=x_test, y_test=y_test,
+                                        use_test_sets=use_test_data)
         for t in mythresholds:
-            cm = run_knn_model(x_data, y_data, num_n=num_n, threshold=t,
-                               x_test=x_test, y_test=y_test,
-                               use_test_sets=use_test_data)
+            print('Threshold: ', t)
+            predicted_probs['predicted_class'] = 0
+            # get cut_off to classify *threshold* percent of rows as positive
+            cut_off = np.percentile(a=predicted_probs[1], q=t)
+            predicted_probs.loc[predicted_probs[1] >= cut_off,
+                                'predicted_class'] = 1
+            cm = metrics.confusion_matrix(y_test,
+                                          predicted_probs['predicted_class'])
+            print_confusion_matrix(cm)
             tpr.append(cm[1][1] / sum(cm[1]))
             fpr.append(cm[0][1] / sum(cm[0]))
             model.append('knn')
@@ -605,10 +649,19 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
             print('\n')
     if run_logit:
+        predicted_probs = run_logit_model(x_data, y_data=y_data,
+                                          x_test=x_test, y_test=y_test,
+                                          use_test_sets=use_test_data)
         for t in mythresholds:
-            cm = run_logit_model(x_data, y_data=y_data, threshold=t,
-                                 x_test=x_test, y_test=y_test,
-                                 use_test_sets=use_test_data)
+            print('Threshold: ', t)
+            predicted_probs['predicted_class'] = 0
+            # get cut_off to classify *threshold* percent of rows as positive
+            cut_off = np.percentile(a=predicted_probs[1], q=t)
+            predicted_probs.loc[predicted_probs[1] >= cut_off,
+                                'predicted_class'] = 1
+            cm = metrics.confusion_matrix(y_test,
+                                          predicted_probs['predicted_class'])
+            print_confusion_matrix(cm)
             tpr.append(cm[1][1] / sum(cm[1]))
             fpr.append(cm[0][1] / sum(cm[0]))
             model.append('logit')
@@ -616,13 +669,22 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
             print('\n')
     if run_tree:
+        print('Threshold: ', t)
+        predicted_probs = run_tree_model(x_data,
+                                         y_data=y_data,
+                                         max_depth=my_max_depth,
+                                         outcome_labels=outcome_labels,
+                                         x_test=x_test, y_test=y_test,
+                                         use_test_sets=use_test_data)
         for t in mythresholds:
-            cm = run_tree_model(x_data,
-                                y_data=y_data,
-                                max_depth=my_max_depth,
-                                outcome_labels=outcome_labels, threshold=t,
-                                x_test=x_test, y_test=y_test,
-                                use_test_sets=use_test_data)
+            predicted_probs['predicted_class'] = 0
+            # get cut_off to classify *threshold* percent of rows as positive
+            cut_off = np.percentile(a=predicted_probs[1], q=t)
+            predicted_probs.loc[predicted_probs[1] >= cut_off,
+                                'predicted_class'] = 1
+            cm = metrics.confusion_matrix(y_test,
+                                          predicted_probs['predicted_class'])
+            print_confusion_matrix(cm)
             tpr.append(cm[1][1] / sum(cm[1]))
             fpr.append(cm[0][1] / sum(cm[0]))
             model.append('tree')
@@ -650,13 +712,12 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
 
     print('\n\nTable of results:')
     print(to_plot)
-    random_number = random.randint(1, 100000)
-    print(random_number)
-    to_plot.to_csv(str(random_number) + ".csv")
+    to_plot.to_csv(split_name + ".csv")
     plt.clf()
     sns.lineplot(x=to_plot['fpr'],
                  y=to_plot['tpr'],
                  hue=to_plot['model'])
+    plt.savefig('figures/fpr_vs_tpr' + split_name)
 
 
 # ## Function to split data into test and training data

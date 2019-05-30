@@ -43,4 +43,4 @@ predicted_probs = pd.DataFrame(mymodel.predict_proba(df[['calories', 'protein', 
 
 predicted_probs
 
-np.percentile()
+np.percentile(a=predicted_probs[1], q=40)
