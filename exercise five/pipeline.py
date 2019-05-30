@@ -447,8 +447,9 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             cm = metrics.confusion_matrix(y_test,
                                           predicted_probs['predicted_class'])
             print_confusion_matrix(cm)
-            tpr.append(cm[1][1] / (cm[1][1] + cm[0][1]))   # append true positive rate
-            fpr.append(cm[0][1] / sum(cm[0]))   # append false positive rate
+            tn, fp, fn, tp = cm.ravel()
+            tpr.append(tp / (tp + fn))   # append true positive rate
+            fpr.append(fp / (tn + fp))   # append false positive rate
             model.append('bagging')
             current_threshold.append(t)
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
@@ -469,8 +470,9 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             cm = metrics.confusion_matrix(y_test,
                                           predicted_probs['predicted_class'])
             print_confusion_matrix(cm)
-            tpr.append(cm[1][1] / (cm[1][1] + cm[0][1]))   # append true positive rate
-            fpr.append(cm[0][1] / sum(cm[0]))
+            tn, fp, fn, tp = cm.ravel()
+            tpr.append(tp / (tp + fn))
+            fpr.append(fp / (tn + fp))
             model.append('boosted')
             current_threshold.append(t)
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
@@ -489,8 +491,9 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             cm = metrics.confusion_matrix(y_test,
                                           predicted_probs['predicted_class'])
             print_confusion_matrix(cm)
-            tpr.append(cm[1][1] / (cm[1][1] + cm[0][1]))   # append true positive rate
-            fpr.append(cm[0][1] / sum(cm[0]))
+            tn, fp, fn, tp = cm.ravel()
+            tpr.append(tp / (tp + fn))
+            fpr.append(fp / (tn + fp))
             model.append('forest')
             current_threshold.append(t)
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
@@ -514,8 +517,9 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             cm = metrics.confusion_matrix(y_test,
                                           predicted_probs['predicted_class'])
             print_confusion_matrix(cm)
-            tpr.append(cm[1][1] / (cm[1][1] + cm[0][1]))   # append true positive rate
-            fpr.append(cm[0][1] / sum(cm[0]))
+            tn, fp, fn, tp = cm.ravel()
+            tpr.append(tp / (tp + fn))
+            fpr.append(fp / (tn + fp))
             model.append('svm')
             current_threshold.append(t)
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
@@ -534,8 +538,9 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             cm = metrics.confusion_matrix(y_test,
                                           predicted_probs['predicted_class'])
             print_confusion_matrix(cm)
-            tpr.append(cm[1][1] / (cm[1][1] + cm[0][1]))   # append true positive rate
-            fpr.append(cm[0][1] / sum(cm[0]))
+            tn, fp, fn, tp = cm.ravel()
+            tpr.append(tp / (tp + fn))
+            fpr.append(fp / (tn + fp))
             model.append('knn')
             current_threshold.append(t)
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
@@ -554,14 +559,14 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             cm = metrics.confusion_matrix(y_test,
                                           predicted_probs['predicted_class'])
             print_confusion_matrix(cm)
-            tpr.append(cm[1][1] / (cm[1][1] + cm[0][1]))   # append true positive rate
-            fpr.append(cm[0][1] / sum(cm[0]))
+            tn, fp, fn, tp = cm.ravel()
+            tpr.append(tp / (tp + fn))
+            fpr.append(fp / (tn + fp))
             model.append('logit')
             current_threshold.append(t)
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))
             print('\n')
     if run_tree:
-        print('Threshold: ', t)
         predicted_probs = run_tree_model(x_data,
                                          y_data=y_data,
                                          max_depth=my_max_depth,
@@ -569,6 +574,7 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
                                          x_test=x_test, y_test=y_test,
                                          use_test_sets=use_test_data)
         for t in mythresholds:
+            print('Threshold: ', t)
             predicted_probs['predicted_class'] = 0
             # get cut_off to classify *threshold* percent of rows as positive
             cut_off = np.percentile(a=predicted_probs[1], q=t)
@@ -577,8 +583,9 @@ def compare_models(x_data=None, x_data_scaled=None, y_data=None,
             cm = metrics.confusion_matrix(y_test,
                                           predicted_probs['predicted_class'])
             print_confusion_matrix(cm)
-            tpr.append(cm[1][1] / (cm[1][1] + cm[0][1]))   # append true positive rate
-            fpr.append(cm[0][1] / sum(cm[0]))
+            tn, fp, fn, tp = cm.ravel()
+            tpr.append(tp / (tp + fn))
+            fpr.append(fp / (tn + fp))
             model.append('tree')
             current_threshold.append(t)
             precision.append(cm[1][1] / (cm[1][1] + cm[0][1]))

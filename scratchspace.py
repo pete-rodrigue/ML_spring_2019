@@ -4,6 +4,7 @@ from sklearn import tree
 import os
 import numpy as np
 
+np.percentile([1,2,3,4,5,6,7,8,9,10], 95)
 def fill_missing(df):
     '''
     Fill missing numerica data in our data frame with the median value of that
