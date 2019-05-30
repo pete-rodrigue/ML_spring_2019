@@ -364,12 +364,11 @@ def run_svm_model(x_data_scaled, y_data, x_test=None,
 
     if use_test_sets:
         print('Returning test set performance:')
-        predicted_probs = pd.DataFrame(mymodel.decision_function(x_data_scaled))
-        print(predicted_probs)
+        predicted_probs = pd.DataFrame(mymodel.decision_function(x_test))
         predicted_probs['predicted_class'] = 0
         # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs, q=threshold)
-        predicted_probs.loc[predicted_probs >= cut_off,
+        cut_off = np.percentile(a=predicted_probs[0], q=threshold)
+        predicted_probs.loc[predicted_probs[0] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_test,
                                       predicted_probs['predicted_class'])
@@ -382,8 +381,8 @@ def run_svm_model(x_data_scaled, y_data, x_test=None,
         predicted_probs = pd.DataFrame(mymodel.decision_function(x_data_scaled))
         predicted_probs['predicted_class'] = 0
         # get cut_off to classify *threshold* percent of rows as positive
-        cut_off = np.percentile(a=predicted_probs, q=threshold)
-        predicted_probs.loc[predicted_probs >= cut_off,
+        cut_off = np.percentile(a=predicted_probs[0], q=threshold)
+        predicted_probs.loc[predicted_probs[0] >= cut_off,
                             'predicted_class'] = 1
         cm = metrics.confusion_matrix(y_data,
                                       predicted_probs['predicted_class'])
@@ -486,15 +485,16 @@ def run_boosted_model(x_data, y_data, x_test=None, y_test=None,
 
 # Bagging
 def run_bagging_model(x_data, y_data, x_test=None,
-                      y_test=None, threshold=50, use_test_sets=False):
+                      y_test=None, threshold=50, use_test_sets=False,
+                      max_depth=20):
     '''
     Runs a bagging model
     '''
-    mymodel = BaggingClassifier(KNeighborsClassifier(n_neighbors=16),
-                                max_samples=100)
+    mymodel = BaggingClassifier(tree.DecisionTreeClassifier(max_depth=max_depth),
+                                max_samples=200)
     mymodel.fit(x_data, y_data)
 
-    print('************Bagged KNN')
+    print('************Bagged Tree')
     print("*********Threshold:{0}".format(threshold))
 
     if use_test_sets:
