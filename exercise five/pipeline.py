@@ -65,6 +65,18 @@ def load_and_peek_at_data(path, date_vars=None, summary=False):
     return df
 
 
+def standardize_vars(df, vars_to_standardize):
+    '''
+    takes a dataframe and a list of strings (columns to standardize)
+    returns the dataframe with those columns standardized
+    '''
+    for var in vars_to_standardize:
+        new_var = (df[var] - df[var].mean()) / df[var].std()
+        df[var] = new_var
+
+    return df
+
+
 def make_graphs(df, normal_qq_plots=False):
     '''
     Takes our dataframe, fills in missing values with the median,
@@ -194,6 +206,18 @@ def make_dummies(df, var):
 
     return pd.concat([df, pd.get_dummies(df[var], prefix=new_var_prefix)],
                      axis=1)
+
+
+# defining variables to keep, making dummies
+def make_dummies_subset_df(df, cat_vars, vars_to_keep):
+    # make dummy vars
+    for var in cat_vars:
+        df = make_dummies(df, var)
+    # take a subset of our features
+    new_cat_vars = [col for col in df if col.startswith('D_')]
+    vars_to_keep = new_cat_vars + vars_to_keep
+
+    return df[vars_to_keep]
 
 
 def print_confusion_matrix(cm):
