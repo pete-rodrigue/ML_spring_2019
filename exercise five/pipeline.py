@@ -659,3 +659,33 @@ def split_using_date(data, train_start_date, train_end_date,
                                                     inclusive=False), :]
 
     return [train, test]
+
+
+def compare_models_varying_params(list_of_dicts_of_params):
+    '''compare models with different parameterizations'''
+    for param_set in list_of_dicts_of_params:
+        compare_models(x_data=param_set['x_data'],
+                       x_data_scaled=param_set['x_data_scaled'],
+                       y_data=param_set['y_data'],
+                       x_test=param_set['x_test'],
+                       x_test_scaled=param_set['x_test_scaled'],
+                       y_test=param_set['y_test'],
+                       use_test_data=param_set['use_test_data'],
+                       run_bagging=param_set['run_bagging'],
+                       run_boosted=param_set['run_boosted'],
+                       run_a_forest=param_set['run_a_forest'],
+                       run_svm=param_set['run_svm'],
+                       run_knn=param_set['run_knn'],
+                       run_logit=param_set['run_logit'],
+                       run_tree=param_set['run_tree'],
+                       mythresholds=param_set['mythresholds'],
+                       my_max_depth=param_set['my_max_depth'],
+                       my_n_estimators=param_set['my_n_estimators'],
+                       num_n=param_set['num_n'],
+                       outcome_labels=param_set['outcome_labels'],
+                       mykernel=param_set['mykernel'],
+                       my_max_bagging_samples=param_set['my_max_bagging_samples'],
+                       my_svc_tol=param_set['my_svc_tol'],
+                       my_svc_random_state=param_set['my_svc_random_state'],
+                       my_svc_C=param_set['my_svc_C'],
+                       split_name=param_set['split_name'])
